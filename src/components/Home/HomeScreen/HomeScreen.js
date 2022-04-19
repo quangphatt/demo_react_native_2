@@ -41,10 +41,13 @@ class HomeScreen extends Component {
                 <FontAwesome5
                   name={'list-ul'}
                   size={21}
-                  color={focused ? '#000' : '#9c9c9c'}
+                  color={focused ? '#35239e' : '#595959'}
                 />
                 <Text
-                  style={{color: focused ? '#000' : '#9c9c9c', fontSize: 9}}>
+                  style={{
+                    color: focused ? '#35239e' : '#595959',
+                    fontSize: 10,
+                  }}>
                   Todo List
                 </Text>
               </View>
@@ -60,10 +63,13 @@ class HomeScreen extends Component {
                 <FontAwesome5
                   name={'clock'}
                   size={21}
-                  color={focused ? '#000' : '#9c9c9c'}
+                  color={focused ? '#35239e' : '#595959'}
                 />
                 <Text
-                  style={{color: focused ? '#000' : '#9c9c9c', fontSize: 9}}>
+                  style={{
+                    color: focused ? '#35239e' : '#595959',
+                    fontSize: 10,
+                  }}>
                   Activity
                 </Text>
               </View>
@@ -75,16 +81,11 @@ class HomeScreen extends Component {
           component={ProjectManage}
           options={{
             tabBarIcon: ({focused}) => (
-              <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <FontAwesome5
-                  name={'comment-dots'}
-                  size={21}
-                  color={focused ? '#000' : '#9c9c9c'}
+              <View style={styles.center_icon_wrapper}>
+                <Image
+                  style={styles.center_icon}
+                  source={require('../../../assets/images/logo_xboss.png')}
                 />
-                <Text
-                  style={{color: focused ? '#000' : '#9c9c9c', fontSize: 9}}>
-                  PROJECT
-                </Text>
               </View>
             ),
           }}
@@ -98,10 +99,13 @@ class HomeScreen extends Component {
                 <FontAwesome5
                   name={'star'}
                   size={21}
-                  color={focused ? '#000' : '#9c9c9c'}
+                  color={focused ? '#35239e' : '#595959'}
                 />
                 <Text
-                  style={{color: focused ? '#000' : '#9c9c9c', fontSize: 9}}>
+                  style={{
+                    color: focused ? '#35239e' : '#595959',
+                    fontSize: 10,
+                  }}>
                   Bookmark
                 </Text>
               </View>
@@ -117,10 +121,13 @@ class HomeScreen extends Component {
                 <FontAwesome5
                   name={'user-circle'}
                   size={21}
-                  color={focused ? '#000' : '#9c9c9c'}
+                  color={focused ? '#35239e' : '#595959'}
                 />
                 <Text
-                  style={{color: focused ? '#000' : '#9c9c9c', fontSize: 9}}>
+                  style={{
+                    color: focused ? '#35239e' : '#595959',
+                    fontSize: 10,
+                  }}>
                   Profile
                 </Text>
               </View>
@@ -147,6 +154,20 @@ const styles = StyleSheet.create({
   icon: {},
   drawer_txt: {
     fontSize: 16,
+  },
+  center_icon_wrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#462cd4',
+    height: 60,
+    width: 60,
+    borderRadius: 30,
+    position: 'absolute',
+    bottom: 15,
+  },
+  center_icon: {
+    width: 30,
+    height: 30,
   },
 });
 

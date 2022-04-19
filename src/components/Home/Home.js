@@ -61,17 +61,14 @@ class Home extends Component {
                     }}>
                     User Name
                   </Text>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: '#ffbf00',
-                        marginRight: 5,
-                      }}>
-                      Premium Account
-                    </Text>
-                    <FontAwesome5 name="coins" size={12} color="#ffbf00" />
-                  </View>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: '#ffbf00',
+                      marginRight: 5,
+                    }}>
+                    Premium Account
+                  </Text>
                 </ImageBackground>
                 <View
                   style={{flex: 1, backgroundColor: '#fff', paddingTop: 10}}>
