@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {Dimensions} from 'react-native';
 import {
   View,
   Text,
@@ -7,12 +6,10 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  Dimensions
 } from 'react-native';
-// import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {AuthContext} from '../context/AuthContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
-// const Tab = createBottomTabNavigator();
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').witdh;

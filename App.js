@@ -31,7 +31,10 @@ class App extends Component {
         )
           .then(res => {
             this.state.getUserInfo();
+            var k=await this.state.getProjectStatus(190,'en_US');
+            console.log(k)
             this.setState({isLogin: true});
+            
           })
           .catch(() => {
             console.log('Incorrect Username or Password');
@@ -82,17 +85,14 @@ class App extends Component {
           // console.log(this.state.userInfo.allowedCompany);
         });
       },
-      changeCompany:(newCompanyId)=>{
-        var params={
-          args:[[this.state.userInfo.uid],{"company_id":newCompanyId}],
-          model:"res.users",
-          method:"write",
-          kwargs:{}
-        }
-        fetch_api(
-          {params: params},
-          res => !res.data.error,
-        )
+      changeCompany: newCompanyId => {
+        var params = {
+          args: [[this.state.userInfo.uid], {company_id: newCompanyId}],
+          model: 'res.users',
+          method: 'write',
+          kwargs: {},
+        };
+        fetch_api({params: params}, res => !res.data.error)
           .then(res => {
             this.state.getUserInfo();
           })
@@ -100,22 +100,51 @@ class App extends Component {
             console.log('Error while update company');
           });
       },
-      changeLanguage:(newLanguage)=>{
-        var params={
-          args:[this.state.userInfo.uid,{lang:newLanguage}],
-          model:"res.users",
-          method:"write",
-          kwargs:{}
-        }
-        fetch_api(
-          {params: params},
-          res => !res.data.error,
-        )
+      changeLanguage: newLanguage => {
+        var params = {
+          args: [this.state.userInfo.uid, {lang: newLanguage}],
+          model: 'res.users',
+          method: 'write',
+          kwargs: {},
+        };
+        fetch_api({params: params}, res => !res.data.error)
           .then(res => {
             this.state.getUserInfo();
           })
           .catch(() => {
             console.log('Error while update language');
+          });
+      },
+      getProjectStatus: (uid, lang) => {
+        var params = {
+          args: [],
+          kwargs: {
+            context: {
+              lang: 'en_US',
+              tz: 'Asia/Ho_Chi_Minh',
+              uid: 190,
+            },
+            domain: [],
+            fields: ['name', 'project_status'],
+            groupby: ['project_status'],
+            orderby: '',
+          },
+          method: 'read_group',
+          model: 'project.project',
+        };
+        fetch_api({params: params}, res => !res.data.error)
+          .then(res => {
+            var arrres = res.data.result.map(item => ({
+              type: item.project_status[0],
+              type_name: item.project_status[1],
+              count: item.project_status_count,
+            }));
+            // console.log(arrres)
+            return arrres;
+          })
+          .catch(() => {
+            console.log('Error');
+            return [];
           });
       },
     };

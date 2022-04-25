@@ -44,31 +44,41 @@ class Home extends Component {
                 <ImageBackground
                   source={require('../../assets/images/menu-bg.jpeg')}
                   style={{padding: 20}}>
-                  <Image
-                    source={require('../../assets/images/user.png')}
-                    style={{
-                      height: 80,
-                      width: 80,
-                      borderRadius: 40,
-                      marginBottom: 10,
-                    }}
-                  />
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 20,
-                      marginBottom: 5,
-                    }}>
-                    User Name
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: '#ffbf00',
-                      marginRight: 5,
-                    }}>
-                    Premium Account
-                  </Text>
+                  <AuthContext.Consumer>
+                    {context => (
+                      <View>
+                        <Image
+                          source={
+                            context.userInfo.avatar === ''
+                              ? require('../../assets/images/user.png')
+                              : {uri: context.userInfo.avatar}
+                          }
+                          style={{
+                            height: 80,
+                            width: 80,
+                            borderRadius: 40,
+                            marginBottom: 10,
+                          }}
+                        />
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 20,
+                            marginBottom: 5,
+                          }}>
+                          {context.userInfo.name}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: '#fff',
+                            marginRight: 5,
+                          }}>
+                          {context.userInfo.username}
+                        </Text>
+                      </View>
+                    )}
+                  </AuthContext.Consumer>
                 </ImageBackground>
                 <View
                   style={{flex: 1, backgroundColor: '#fff', paddingTop: 10}}>
