@@ -22,8 +22,8 @@ class Login extends Component {
     super(props);
     this.state = {
       showPassword: false,
-      username: '',
-      password: '',
+      username: 'longlam@hhdgroup.com',
+      password: '1!@#Qqwe',
     };
   }
 
@@ -96,7 +96,7 @@ class Login extends Component {
             {context => (
               <TouchableOpacity
                 style={styles.btn_signin}
-                onPress={context.logIn}>
+                onPress={()=>context.logIn(this.state.username,this.state.password)}>
                 <Text style={styles.btn_text}>Sign In</Text>
               </TouchableOpacity>
             )}
