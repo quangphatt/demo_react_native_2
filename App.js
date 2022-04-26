@@ -17,6 +17,7 @@ class App extends Component {
         currentCompany: '',
         allowedCompany: [],
       },
+      allProject: [],
       logIn: (username, password) => {
         // this.setState({isLogin: true});
         var params = {
@@ -31,10 +32,9 @@ class App extends Component {
         )
           .then(res => {
             this.state.getUserInfo();
-            var k=await this.state.getProjectStatus(190,'en_US');
-            console.log(k)
+            this.state.getProjectStatus();
+            this.state.getAllProject();
             this.setState({isLogin: true});
-            
           })
           .catch(() => {
             console.log('Incorrect Username or Password');
@@ -55,6 +55,7 @@ class App extends Component {
                 currentCompany: '',
                 allowedCompany: [],
               },
+              allProject: [],
             });
           })
           .catch(() => {
@@ -115,14 +116,14 @@ class App extends Component {
             console.log('Error while update language');
           });
       },
-      getProjectStatus: (uid, lang) => {
+      getProjectStatus: () => {
         var params = {
           args: [],
           kwargs: {
             context: {
-              lang: 'en_US',
+              lang: this.state.userInfo.lang,
               tz: 'Asia/Ho_Chi_Minh',
-              uid: 190,
+              uid: this.state.userInfo.uid,
             },
             domain: [],
             fields: ['name', 'project_status'],
@@ -135,16 +136,97 @@ class App extends Component {
         fetch_api({params: params}, res => !res.data.error)
           .then(res => {
             var arrres = res.data.result.map(item => ({
-              type: item.project_status[0],
-              type_name: item.project_status[1],
+              status: item.project_status[0],
+              status_name: item.project_status[1],
               count: item.project_status_count,
+              projects: [],
             }));
             // console.log(arrres)
-            return arrres;
+            this.setState({
+              allProject: arrres,
+            });
+            // console.log(this.state.allProject);
+            // return arrres;
           })
           .catch(() => {
             console.log('Error');
             return [];
+          });
+      },
+      getAllProject: () => {
+        var params = {
+          context: {
+            lang: this.state.userInfo.lang,
+            tz: 'Asia/Ho_Chi_Minh',
+            uid: this.state.userInfo.uid,
+            params: {
+              model: 'project.project',
+            },
+          },
+          domain: [],
+          fields: [
+            'id',
+            'name',
+            'color',
+            'project_status',
+            'is_favorite',
+            'user_id',
+            'task_count',
+          ],
+          sort: '',
+          limit: 80,
+          model: 'project.project',
+        };
+        fetch_api(
+          {params: params},
+          res => !res.data.error,
+          '/web/dataset/search_read',
+        )
+          .then(res => {
+            var allProject = this.state.allProject;
+            res.data.result.records.forEach(itemProject => {
+              for (let i = 0; i < allProject.length; i++) {
+                if (itemProject.project_status[0] === allProject[i].status) {
+                  allProject[i].projects.push(itemProject);
+                }
+              }
+            });
+            this.setState({
+              allProject: allProject,
+            });
+            // console.log(this.state.allProject)
+          })
+          .catch(() => {
+            console.log('Error while get all project');
+          });
+      },
+      changeProjectIsfavorite: (project_id, project_status, is_favorite) => {
+        var params = {
+          args: [[project_id], {is_favorite: is_favorite}],
+          kwargs: {
+            context: {
+              lang: this.state.userInfo.lang,
+              tz: 'Asia/Ho_Chi_Minh',
+              uid: this.state.userInfo.uid,
+              params: {
+                model: 'project.project',
+              },
+            },
+          },
+          method: 'write',
+          model: 'project.project',
+        };
+        fetch_api(
+          {params: params},
+          res => !res.data.error,
+          '/web/dataset/call_kw/project.project/write',
+        )
+          .then(res => {
+            this.state.getProjectStatus();
+            this.state.getAllProject();
+          })
+          .catch(() => {
+            console.log('Error while change favorite');
           });
       },
     };

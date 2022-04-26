@@ -10,6 +10,21 @@ import {AuthContext} from '../../../../context/AuthContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
+const projectColor={
+  0:'#fff',
+  1:'#f06050',
+  2:'#f4a460',
+  3:'#f7cd1f',
+  4:'#6cc1ed',
+  5:'#814968',
+  6:'#eb7e7f',
+  7:'#2c8397',
+  8:'#475577',
+  9:'#d6145f',
+  10:'#30c381',
+  11:'#9365b8',
+}
+
 class AllProject extends Component {
   constructor(props) {
     super(props);
@@ -17,7 +32,6 @@ class AllProject extends Component {
   }
 
   render() {
-    
     return (
       <AuthContext.Consumer>
         {context => (
@@ -37,10 +51,12 @@ class AllProject extends Component {
             </View>
             <View>
               <ScrollView>
-                {[1,2].map(item => (
-                  <View style={styles.project_group} key={item}>
+                {context.allProject.map(item => (
+                  <View style={styles.project_group} key={item.status}>
                     <View style={styles.project_group_header}>
-                      <Text style={styles.project_type}>In Progress</Text>
+                      <Text style={styles.project_type}>
+                        {item.status_name} ({item.count})
+                      </Text>
                       <TouchableOpacity>
                         <FontAwesome5
                           size={20}
@@ -49,121 +65,49 @@ class AllProject extends Component {
                         />
                       </TouchableOpacity>
                     </View>
-                    <View style={styles.project}>
-                      <View
-                        style={{
-                          ...styles.project_color,
-                          backgroundColor: '#ff0000',
-                        }}></View>
-                      <View style={styles.project_content}>
-                        <View style={styles.project_header}>
-                          <TouchableOpacity>
-                            <AntDesign
-                              size={20}
-                              color={'#848a6d'}
-                              name={'staro'}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Text style={styles.project_name}>
-                              XBOSS MOBILE ERP NAME LONG VERY LONG
-                            </Text>
-                          </TouchableOpacity>
+                    {item.projects.map(itemProject => (
+                      <View style={styles.project} key={itemProject.id}>
+                        <View
+                          style={{
+                            ...styles.project_color,
+                            backgroundColor: itemProject.color
+                              ? projectColor[itemProject.color]
+                              : '#fff',
+                          }}></View>
+                        <View style={styles.project_content}>
+                          <View style={styles.project_header}>
+                            <TouchableOpacity onPress={()=>context.changeProjectIsfavorite(itemProject.id,item.status,!itemProject.is_favorite)}>
+                              {itemProject.is_favorite ? (
+                                <AntDesign
+                                  size={20}
+                                  color={'#ffdd00'}
+                                  name={'star'}
+                                />
+                              ) : (
+                                <AntDesign
+                                  size={20}
+                                  color={'#848a6d'}
+                                  name={'staro'}
+                                />
+                              )}
+                            </TouchableOpacity>
+                            <TouchableOpacity>
+                              <Text style={styles.project_name}>
+                                {itemProject.name}
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                          <Text style={styles.project_username}>
+                            {itemProject.user_id[1]}
+                          </Text>
+                          <Text style={styles.project_task_count}>
+                            {itemProject.task_count} Tasks
+                          </Text>
                         </View>
-                        <Text style={styles.project_username}>User name</Text>
-                        <Text style={styles.project_task_count}>0 Tasks</Text>
                       </View>
-                    </View>
-                    <View style={styles.project}>
-                      <View
-                        style={{
-                          ...styles.project_color,
-                          backgroundColor: '#ff0000',
-                        }}></View>
-                      <View style={styles.project_content}>
-                        <View style={styles.project_header}>
-                          <TouchableOpacity>
-                            <AntDesign
-                              size={20}
-                              color={'#ffdd00'}
-                              name={'star'}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Text style={styles.project_name}>
-                              XBOSS MOBILE ERP NAME LONG VERY LONG
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        <Text style={styles.project_username}>User name</Text>
-                        <Text style={styles.project_task_count}>0 Tasks</Text>
-                      </View>
-                    </View>
+                    ))}
                   </View>
                 ))}
-                {/* {listProject} */}
-                {/* <View style={styles.project_group}>
-                  <View style={styles.project_group_header}>
-                    <Text style={styles.project_type}>In Progress</Text>
-                    <TouchableOpacity>
-                      <FontAwesome5
-                        size={20}
-                        color={'#261d1d'}
-                        name={'ellipsis-v'}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.project}>
-                    <View
-                      style={{
-                        ...styles.project_color,
-                        backgroundColor: '#ff0000',
-                      }}></View>
-                    <View style={styles.project_content}>
-                      <View style={styles.project_header}>
-                        <TouchableOpacity>
-                          <AntDesign
-                            size={20}
-                            color={'#848a6d'}
-                            name={'staro'}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                          <Text style={styles.project_name}>
-                            XBOSS MOBILE ERP NAME LONG VERY LONG
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <Text style={styles.project_username}>User name</Text>
-                      <Text style={styles.project_task_count}>0 Tasks</Text>
-                    </View>
-                  </View>
-                  <View style={styles.project}>
-                    <View
-                      style={{
-                        ...styles.project_color,
-                        backgroundColor: '#ff0000',
-                      }}></View>
-                    <View style={styles.project_content}>
-                      <View style={styles.project_header}>
-                        <TouchableOpacity>
-                          <AntDesign
-                            size={20}
-                            color={'#ffdd00'}
-                            name={'star'}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                          <Text style={styles.project_name}>
-                            XBOSS MOBILE ERP NAME LONG VERY LONG
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <Text style={styles.project_username}>User name</Text>
-                      <Text style={styles.project_task_count}>0 Tasks</Text>
-                    </View>
-                  </View>
-                </View> */}
               </ScrollView>
             </View>
           </View>
@@ -176,7 +120,7 @@ class AllProject extends Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e9ecf2',
-    paddingBottom: 120,
+    paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
@@ -203,6 +147,7 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 10,
     borderRadius: 10,
+    marginBottom: 0,
   },
   project_group_header: {
     flexDirection: 'row',
