@@ -18,6 +18,8 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();
 
+// TODO: Gom những gì thuộc Navigation thành 1 Folder riêng, không nên viết chung với Component
+
 class HomeScreen extends Component {
   constructor(props) {
     super(props);

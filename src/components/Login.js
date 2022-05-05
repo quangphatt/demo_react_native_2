@@ -89,7 +89,8 @@ class Login extends Component {
         </View>
 
         <View style={{alignItems: 'center'}}>
-          <AuthContext.Consumer>
+          {/* TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy */ }
+          <AuthContext.Consumer> 
             {context => (
               <TouchableOpacity
                 style={styles.btn_signin}

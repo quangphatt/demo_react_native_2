@@ -4,6 +4,7 @@ import {AuthContext} from './src/context/AuthContext';
 import fetch_api from './src/service';
 
 class App extends Component {
+  // TODO: Đưa các hàm đăng nhập vào trong file Login
   constructor(props) {
     super(props);
     this.state = {
@@ -18,7 +19,7 @@ class App extends Component {
         allowedCompany: [],
       },
       allProject: [],
-      logIn: (username, password) => {
+      logIn: (username, password) => { // TODO: Không đặt các function vào trong state
         // this.setState({isLogin: true});
         var params = {
           db: 'xboss_uat25052021',
@@ -27,8 +28,8 @@ class App extends Component {
         };
         fetch_api(
           {params: params},
-          res => !res.data.error,
-          '/web/session/authenticate',
+          res => !res.data.error, // TODO: Dùng async await, không callback
+          '/web/session/authenticate', // TODO: Đưa các subURL thành 1 file config riêng
         )
           .then(res => {
             this.state.getUserInfo();
@@ -37,12 +38,12 @@ class App extends Component {
             this.setState({isLogin: true});
           })
           .catch(() => {
-            console.log('Incorrect Username or Password');
+            console.log('Incorrect Username or Password'); // TODO: Lỗi thì hiển thị Modal thông báo lên
           });
       },
       logOut: () => {
         // this.setState({isLogin: false});
-        fetch_api({params: {}}, res => !res.data.error, '/web/session/destroy')
+        fetch_api({params: {}}, res => !res.data.error, '/web/session/destroy') 
           .then(res => {
             this.setState({
               isLogin: false,
@@ -233,8 +234,9 @@ class App extends Component {
   }
 
   render() {
+    // TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy
     return (
-      <AuthContext.Provider value={this.state}>
+      <AuthContext.Provider value={this.state}> 
         <AppNav />
       </AuthContext.Provider>
     );

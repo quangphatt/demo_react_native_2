@@ -16,11 +16,12 @@ class AppNav extends Component {
   }
 
   render() {
+    // TODO: Tách Context Provider + Consumer ra 1 file riêng, không để rời rạc như vậy
     return (
-        <AuthContext.Consumer>
+        <AuthContext.Consumer> 
         {context =>
-          context.isLogin ? (
-            <NavigationContainer>
+          context.isLogin ? ( // TODO: Chỉ dùng 1 NavigationContainer
+            <NavigationContainer> 
               <Stack.Navigator
                 screenOptions={{
                   headerShown: false,
@@ -29,7 +30,7 @@ class AppNav extends Component {
               </Stack.Navigator>
             </NavigationContainer>
           ) : (
-            <NavigationContainer>
+            <NavigationContainer> 
               <Stack.Navigator
                 screenOptions={{
                   headerShown: false,

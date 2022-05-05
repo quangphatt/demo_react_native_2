@@ -22,6 +22,8 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Drawer = createDrawerNavigator();
 
+// TODO: Gom những gì thuộc Navigation thành 1 Folder riêng, không nên viết chung với Component
+
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -37,7 +39,7 @@ class Home extends Component {
           drawerActiveBackgroundColor: '#aa18ea',
           drawerActiveTintColor: '#fff',
         }}
-        drawerContent={props => {
+        drawerContent={props => { // TODO: Đưa drawerContent ra thành 1 file riêng
           return (
             <View style={{flex: 1}}>
               <DrawerContentScrollView {...props}>
