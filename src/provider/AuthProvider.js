@@ -1,8 +1,14 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
-import AppNav from '../components/AppNav';
 import {AuthContext} from '../context/AuthContext';
-import {loginURL} from '../service/configURL';
+import AppNavigation from '../Navigation/AppNavigation/AppNavigation';
+import {
+  loginURL,
+  logoutURL,
+  userInfoURL,
+  getAllProjectURL,
+  avatarURL,
+} from '../service/configURL';
 import fetch_api from '../service/index';
 
 class AuthProvider extends Component {
@@ -41,7 +47,7 @@ class AuthProvider extends Component {
     fetch_api(
       {params: params},
       res => !res.data.error, // TODO: Dùng async await, không callback
-      '/web/session/authenticate', // TODO: Đưa các subURL thành 1 file config riêng
+      loginURL, // TODO: Đưa các subURL thành 1 file config riêng
     )
       .then(res => {
         this.getUserInfo();
@@ -55,7 +61,7 @@ class AuthProvider extends Component {
   };
 
   logout = () => {
-    fetch_api({params: {}}, res => !res.data.error, '/web/session/destroy')
+    fetch_api({params: {}}, res => !res.data.error, logoutURL)
       .then(res => {
         this.setState({
           isLogin: false,
@@ -67,7 +73,6 @@ class AuthProvider extends Component {
             lang: '',
             currentCompany: '',
             allowedCompany: [],
-            
           },
           allProject: [],
         });
@@ -78,26 +83,22 @@ class AuthProvider extends Component {
   };
 
   getUserInfo = () => {
-    fetch_api({params: {}}, res => true, '/web/session/get_session_info').then(
-      res => {
-        this.setState({
-          userInfo: {
-            uid: res.data.result.uid,
-            name: res.data.result.name,
-            username: res.data.result.username,
-            avatar:
-              'https://uat.xboss.com/web/image?model=res.users&field=image&id=' +
-              res.data.result.uid,
-            lang: res.data.result.user_context.lang,
-            currentCompany: res.data.result.user_companies.current_company,
-            allowedCompany: res.data.result.user_companies.allowed_companies,
-          },
-        });
-        // console.log(this.state.userInfo.lang);
-        // console.log(this.state.userInfo.currentCompany);
-        // console.log(this.state.userInfo.allowedCompany);
-      },
-    );
+    fetch_api({params: {}}, res => true, userInfoURL).then(res => {
+      this.setState({
+        userInfo: {
+          uid: res.data.result.uid,
+          name: res.data.result.name,
+          username: res.data.result.username,
+          avatar: avatarURL + res.data.result.uid,
+          lang: res.data.result.user_context.lang,
+          currentCompany: res.data.result.user_companies.current_company,
+          allowedCompany: res.data.result.user_companies.allowed_companies,
+        },
+      });
+      // console.log(this.state.userInfo.lang);
+      // console.log(this.state.userInfo.currentCompany);
+      // console.log(this.state.userInfo.allowedCompany);
+    });
   };
   changeCompany = newCompanyId => {
     var params = {
@@ -156,7 +157,7 @@ class AuthProvider extends Component {
         }));
         // console.log(arrres)
         this.setState({
-            allProject: arrres,
+          allProject: arrres,
         });
         // console.log(this.state.allProject);
         // return arrres;
@@ -190,11 +191,7 @@ class AuthProvider extends Component {
       limit: 80,
       model: 'project.project',
     };
-    fetch_api(
-      {params: params},
-      res => !res.data.error,
-      '/web/dataset/search_read',
-    )
+    fetch_api({params: params}, res => !res.data.error, getAllProjectURL)
       .then(res => {
         var allProject = this.state.allProject;
         res.data.result.records.forEach(itemProject => {
@@ -205,7 +202,7 @@ class AuthProvider extends Component {
           }
         });
         this.setState({
-            allProject: allProject,
+          allProject: allProject,
         });
         // console.log(this.state.allProject);
       })
@@ -232,7 +229,7 @@ class AuthProvider extends Component {
     fetch_api(
       {params: params},
       res => !res.data.error,
-      '/web/dataset/call_kw/project.project/write',
+      changeProjectIsfavoriteURL,
     )
       .then(res => {
         this.getProjectStatus();
@@ -258,7 +255,7 @@ class AuthProvider extends Component {
 
     return (
       <AuthContext.Provider value={value}>
-        <AppNav />
+        <AppNavigation />
       </AuthContext.Provider>
     );
   }

@@ -1,3 +1,6 @@
-const loginURL='/web/session/authenticate';
-
-export {loginURL}
+export const loginURL='/web/session/authenticate';
+export const logoutURL='/web/session/destroy';
+export const userInfoURL='/web/session/get_session_info';
+export const getAllProjectURL='/web/dataset/search_read';
+export const changeProjectIsfavoriteURL='/web/dataset/call_kw/project.project/write';
+export const avatarURL='https://uat.xboss.com/web/image?model=res.users&field=image&id=';
