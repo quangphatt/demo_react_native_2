@@ -94,8 +94,8 @@ class Home extends Component {
                   borderTopColor: '#ccc',
                 }}>
                 <AuthContext.Consumer>
-                  {context => (
-                    <TouchableOpacity onPress={context.logOut}>
+                  {({logout}) => (
+                    <TouchableOpacity onPress={logout}>
                       <View style={styles.drawer_item}>
                         <View style={styles.icon_wrapper}>
                           <FontAwesome5

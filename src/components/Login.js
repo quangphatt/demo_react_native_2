@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Dimensions
 } from 'react-native';
-import {AuthContext} from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const screenHeight = Dimensions.get('window').height;
@@ -19,8 +19,8 @@ class Login extends Component {
     super(props);
     this.state = {
       showPassword: false,
-      username: '',
-      password: '',
+      username: 'longlam@hhdgroup.com',
+      password: '1!@#Qqwe',
     };
   }
 
@@ -91,13 +91,15 @@ class Login extends Component {
         <View style={{alignItems: 'center'}}>
           {/* TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy */ }
           <AuthContext.Consumer> 
-            {context => (
+            {({login}) => {
+            return(
               <TouchableOpacity
                 style={styles.btn_signin}
-                onPress={()=>context.logIn(this.state.username,this.state.password)}>
+                onPress={()=>login(this.state.username,this.state.password)}>
                 <Text style={styles.btn_text}>Sign In</Text>
               </TouchableOpacity>
-            )}
+            )}}
+
           </AuthContext.Consumer>
 
           <View

@@ -15,7 +15,7 @@ import {AuthContext} from '../../../context/AuthContext';
 const langList = [
   {
     value: 'vi_VN',
-    label: 'Tieng Viet',
+    label: 'Tiếng Việt',
     icon: () => (
       <Image
         source={require('../../../assets/images/vie_icon.png')}
@@ -62,26 +62,25 @@ class Profile extends Component {
   }
 
   render() {
-    return ( 
-      <AuthContext.Consumer>  {/* TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy */ }
-        {context => (
-          <View style={styles.container}>
-            <ImageBackground
-              source={require('../../../assets/images/bg_profile.png')}
-              style={{width: '100%'}}>
-              <View style={styles.header}>
-                <View style={styles.header_btn}>
-                  <TouchableOpacity
-                    onPress={() => this.props.navigation.openDrawer()}>
-                    <FontAwesome5 color="#fff" size={20} name={'arrow-left'} />
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <FontAwesome5 color="#fff" size={20} name={'cog'} />
-                  </TouchableOpacity>
-                </View>
-
+    return (
+      <View style={styles.container}>
+        <ImageBackground
+          source={require('../../../assets/images/bg_profile.png')}
+          style={{width: '100%'}}>
+          <View style={styles.header}>
+            <View style={styles.header_btn}>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.openDrawer()}>
+                <FontAwesome5 color="#fff" size={20} name={'arrow-left'} />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <FontAwesome5 color="#fff" size={20} name={'cog'} />
+              </TouchableOpacity>
+            </View>
+            <AuthContext.Consumer>
+              {context => (
                 <View style={styles.header_info}>
-                  <View style={{}}>
+                  <View>
                     <Image
                       style={styles.avt}
                       source={
@@ -98,9 +97,13 @@ class Profile extends Component {
                     </Text>
                   </View>
                 </View>
-              </View>
-            </ImageBackground>
+              )}
+            </AuthContext.Consumer>
+          </View>
+        </ImageBackground>
 
+        <AuthContext.Consumer>
+          {context => (
             <View style={styles.dropdown_wrapper}>
               <DropDownPicker
                 items={context.userInfo.allowedCompany.map(item => ({
@@ -152,10 +155,12 @@ class Profile extends Component {
                 arrowIconStyle={styles.arrowIconStyle}
               />
             </View>
-            <View>
-              <TouchableOpacity
-                style={styles.logout_wrapper}
-                onPress={context.logOut}>
+          )}
+        </AuthContext.Consumer>
+        <View>
+          <AuthContext.Consumer>
+            {({logout}) => (
+              <TouchableOpacity style={styles.logout_wrapper} onPress={logout}>
                 <View style={styles.logout_icon_wrapper}>
                   <FontAwesome5
                     name="power-off"
@@ -166,10 +171,10 @@ class Profile extends Component {
                 </View>
                 <Text style={styles.logout_text}>Log out</Text>
               </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </AuthContext.Consumer>
+            )}
+          </AuthContext.Consumer>
+        </View>
+      </View>
     );
   }
 }

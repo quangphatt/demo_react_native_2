@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import AppNav from './src/components/AppNav';
-import {AuthContext} from './src/context/AuthContext';
+import Provider from './src/provider/Provider';
 import fetch_api from './src/service';
 
 class App extends Component {
@@ -236,9 +235,7 @@ class App extends Component {
   render() {
     // TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy
     return (
-      <AuthContext.Provider value={this.state}> 
-        <AppNav />
-      </AuthContext.Provider>
+      <Provider />
     );
   }
 }

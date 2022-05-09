@@ -10,20 +10,20 @@ import {AuthContext} from '../../../../context/AuthContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const projectColor={
-  0:'#fff',
-  1:'#f06050',
-  2:'#f4a460',
-  3:'#f7cd1f',
-  4:'#6cc1ed',
-  5:'#814968',
-  6:'#eb7e7f',
-  7:'#2c8397',
-  8:'#475577',
-  9:'#d6145f',
-  10:'#30c381',
-  11:'#9365b8',
-}
+const projectColor = {
+  0: '#fff',
+  1: '#f06050',
+  2: '#f4a460',
+  3: '#f7cd1f',
+  4: '#6cc1ed',
+  5: '#814968',
+  6: '#eb7e7f',
+  7: '#2c8397',
+  8: '#475577',
+  9: '#d6145f',
+  10: '#30c381',
+  11: '#9365b8',
+};
 
 class AllProject extends Component {
   constructor(props) {
@@ -34,7 +34,7 @@ class AllProject extends Component {
   render() {
     return (
       // TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy
-      <AuthContext.Consumer> 
+      <AuthContext.Consumer>
         {context => (
           <View style={styles.container}>
             <View style={styles.header}>
@@ -52,63 +52,72 @@ class AllProject extends Component {
             </View>
             <View>
               <ScrollView>
-                {context.allProject.map(item => (
-                  <View style={styles.project_group} key={item.status}>
-                    <View style={styles.project_group_header}>
-                      <Text style={styles.project_type}>
-                        {item.status_name} ({item.count})
-                      </Text>
-                      <TouchableOpacity>
-                        <FontAwesome5
-                          size={20}
-                          color={'#261d1d'}
-                          name={'ellipsis-v'}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    {item.projects.map(itemProject => (
-                      <View style={styles.project} key={itemProject.id}>
-                        <View
-                          style={{
-                            ...styles.project_color,
-                            backgroundColor: itemProject.color
-                              ? projectColor[itemProject.color]
-                              : '#fff',
-                          }}></View>
-                        <View style={styles.project_content}>
-                          <View style={styles.project_header}>
-                            <TouchableOpacity onPress={()=>context.changeProjectIsfavorite(itemProject.id,item.status,!itemProject.is_favorite)}>
-                              {itemProject.is_favorite ? (
-                                <AntDesign
-                                  size={20}
-                                  color={'#ffdd00'}
-                                  name={'star'}
-                                />
-                              ) : (
-                                <AntDesign
-                                  size={20}
-                                  color={'#848a6d'}
-                                  name={'staro'}
-                                />
-                              )}
-                            </TouchableOpacity>
-                            <TouchableOpacity>
-                              <Text style={styles.project_name}>
-                                {itemProject.name}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                          <Text style={styles.project_username}>
-                            {itemProject.user_id[1]}
-                          </Text>
-                          <Text style={styles.project_task_count}>
-                            {itemProject.task_count} Tasks
-                          </Text>
-                        </View>
+                <ScrollView horizontal={true}>
+                  {context.allProject.map(item => (
+                    <View style={styles.project_group} key={item.status}>
+                      <View style={styles.project_group_header}>
+                        <Text style={styles.project_type}>
+                          {item.status_name} ({item.count})
+                        </Text>
+                        <TouchableOpacity>
+                          <FontAwesome5
+                            size={20}
+                            color={'#261d1d'}
+                            name={'ellipsis-v'}
+                          />
+                        </TouchableOpacity>
                       </View>
-                    ))}
-                  </View>
-                ))}
+                      {item.projects.map(itemProject => (
+                        <View style={styles.project} key={itemProject.id}>
+                          <View
+                            style={{
+                              ...styles.project_color,
+                              backgroundColor: itemProject.color
+                                ? projectColor[itemProject.color]
+                                : '#fff',
+                            }}></View>
+                          <View style={styles.project_content}>
+                            <View style={styles.project_header}>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  context.changeProjectIsfavorite(
+                                    itemProject.id,
+                                    item.status,
+                                    !itemProject.is_favorite,
+                                  )
+                                }>
+                                {itemProject.is_favorite ? (
+                                  <AntDesign
+                                    size={20}
+                                    color={'#ffdd00'}
+                                    name={'star'}
+                                  />
+                                ) : (
+                                  <AntDesign
+                                    size={20}
+                                    color={'#848a6d'}
+                                    name={'staro'}
+                                  />
+                                )}
+                              </TouchableOpacity>
+                              <TouchableOpacity>
+                                <Text style={styles.project_name}>
+                                  {itemProject.name}
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                            <Text style={styles.project_username}>
+                              {itemProject.user_id[1]}
+                            </Text>
+                            <Text style={styles.project_task_count}>
+                              {itemProject.task_count} Tasks
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </ScrollView>
               </ScrollView>
             </View>
           </View>
