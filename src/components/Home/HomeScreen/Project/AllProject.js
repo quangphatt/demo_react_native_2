@@ -100,7 +100,16 @@ class AllProject extends Component {
                                   />
                                 )}
                               </TouchableOpacity>
-                              <TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  this.props.navigation.navigate(
+                                    'ProjectScreen',
+                                    {
+                                      project_id: itemProject.id,
+                                      project_name: itemProject.name,
+                                    },
+                                  )
+                                }>
                                 <Text style={styles.project_name}>
                                   {itemProject.name}
                                 </Text>
@@ -176,7 +185,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   project_color: {
-    width: 8,
+    width: 6,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
   },

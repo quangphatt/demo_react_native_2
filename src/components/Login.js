@@ -23,8 +23,8 @@ class Login extends Component {
     super(props);
     this.state = {
       showPassword: false,
-      username: 'longlam@hhdgroup.com',
-      password: '1!@#Qqwe',
+      username: '',
+      password: '',
       showSuccessLoginModal: false,
       showFailLoginModal: false,
     };
@@ -113,11 +113,10 @@ class Login extends Component {
                     )
                       .then((res) => {
                         this.setState({showSuccessLoginModal:true})
-                        console.log('Login successfully');
                         context.getUserInfo();
                         context.getProjectStatus();
                         context.getAllProject();
-                        this.setState({showSuccessLoginModal:true})
+                        // this.setState({showSuccessLoginModal:true})
                         context.login();
                       })
                       .catch(() => {
