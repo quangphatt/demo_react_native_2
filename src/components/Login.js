@@ -6,10 +6,14 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { AuthContext } from '../context/AuthContext';
+import {AuthContext} from '../context/AuthContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
+import SuccessModal from '../modal/SuccessModal';
+import fetch_api from '../service';
+import { loginURL } from '../service/configURL';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').witdh;
@@ -21,6 +25,8 @@ class Login extends Component {
       showPassword: false,
       username: 'longlam@hhdgroup.com',
       password: '1!@#Qqwe',
+      showSuccessLoginModal: false,
+      showFailLoginModal: false,
     };
   }
 
@@ -89,17 +95,39 @@ class Login extends Component {
         </View>
 
         <View style={{alignItems: 'center'}}>
-          {/* TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy */ }
-          <AuthContext.Consumer> 
-            {({login}) => {
-            return(
-              <TouchableOpacity
-                style={styles.btn_signin}
-                onPress={()=>login(this.state.username,this.state.password)}>
-                <Text style={styles.btn_text}>Sign In</Text>
-              </TouchableOpacity>
-            )}}
-
+          <AuthContext.Consumer>
+            {context => {
+              return (
+                <TouchableOpacity
+                  style={styles.btn_signin}
+                  onPress={() => {
+                    var params = {
+                      db: 'xboss_uat25052021',
+                      login: this.state.username,
+                      password: this.state.password,
+                    };
+                    fetch_api(
+                      {params: params},
+                      res => !res.data.error,
+                      loginURL,
+                    )
+                      .then((res) => {
+                        this.setState({showSuccessLoginModal:true})
+                        console.log('Login successfully');
+                        context.getUserInfo();
+                        context.getProjectStatus();
+                        context.getAllProject();
+                        this.setState({showSuccessLoginModal:true})
+                        context.login();
+                      })
+                      .catch(() => {
+                        console.log('Incorrect Username or Password'); // TODO: Lỗi thì hiển thị Modal thông báo lên
+                      });
+                  }}>
+                  <Text style={styles.btn_text}>Sign In</Text>
+                </TouchableOpacity>
+              );
+            }}
           </AuthContext.Consumer>
 
           <View
@@ -136,6 +164,17 @@ class Login extends Component {
             <Text style={styles.btn_text}> Sign In With Google</Text>
           </TouchableOpacity>
         </View>
+        <AuthContext.Consumer>
+          {context => (
+            <SuccessModal
+              isVisible={this.state.showSuccessLoginModal}
+              onBackdropPress={() =>
+                this.setState({showSuccessLoginModal: false})
+              }
+              pressButton={() => this.setState({showSuccessLoginModal: false})}
+            />
+          )}
+        </AuthContext.Consumer>
       </View>
     );
   }

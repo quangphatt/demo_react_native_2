@@ -6,6 +6,8 @@ import {AuthContext} from '../../context/AuthContext';
 import DrawerNavigation from '../DrawerNavigation/DrawerNavigation';
 import Login from '../../components/Login';
 
+const Stack = createNativeStackNavigator();
+
 class AppNavigation extends Component {
   constructor(props) {
     super(props);

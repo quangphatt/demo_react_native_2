@@ -26,6 +26,7 @@ class AuthProvider extends Component {
         allowedCompany: [],
       },
       allProject: [],
+      showSuccessLoginModal: false,
     };
 
     this.login = this.login.bind(this);
@@ -38,26 +39,8 @@ class AuthProvider extends Component {
     this.changeProjectIsfavorite = this.changeProjectIsfavorite.bind(this);
   }
 
-  login = (username, password) => {
-    var params = {
-      db: 'xboss_uat25052021',
-      login: username,
-      password: password,
-    };
-    fetch_api(
-      {params: params},
-      res => !res.data.error, // TODO: Dùng async await, không callback
-      loginURL, // TODO: Đưa các subURL thành 1 file config riêng
-    )
-      .then(res => {
-        this.getUserInfo();
-        this.getProjectStatus();
-        this.getAllProject();
-        this.setState({isLogin: true});
-      })
-      .catch(() => {
-        console.log('Incorrect Username or Password'); // TODO: Lỗi thì hiển thị Modal thông báo lên
-      });
+  login = () => {
+    this.setState({isLogin: true})
   };
 
   logout = () => {
@@ -155,12 +138,9 @@ class AuthProvider extends Component {
           count: item.project_status_count,
           projects: [],
         }));
-        // console.log(arrres)
         this.setState({
           allProject: arrres,
         });
-        // console.log(this.state.allProject);
-        // return arrres;
       })
       .catch(() => {
         console.log('Error');
@@ -244,6 +224,7 @@ class AuthProvider extends Component {
     const value = {
       ...this.state,
       login: this.login,
+      showSuccessLoginModal: this.showSuccessLoginModal,
       logout: this.logout,
       getUserInfo: this.getUserInfo,
       changeCompany: this.changeCompany,
