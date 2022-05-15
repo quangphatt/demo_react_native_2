@@ -6,9 +6,10 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import {AuthContext} from '../../../../context/AuthContext';
+import {withGlobalContext} from '../../../../provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import fetch_api from '../../../../service';
 
 const projectColor = {
   0: '#fff',
@@ -33,105 +34,91 @@ class AllProject extends Component {
 
   render() {
     return (
-      // TODO: Tách Context Provider + Consumer ra 1 file riêng và quản lý state ở đó, không để rời rạc như vậy
-      <AuthContext.Consumer>
-        {context => (
-          <View style={styles.container}>
-            <View style={styles.header}>
-              <TouchableOpacity
-                style={styles.header_icon_wrapper}
-                onPress={() => this.props.navigation.openDrawer()}>
-                <FontAwesome5
-                  style={styles.header_icon}
-                  size={20}
-                  name={'align-left'}
-                />
-              </TouchableOpacity>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.header_icon_wrapper}
+            onPress={() => this.props.navigation.openDrawer()}>
+            <FontAwesome5
+              style={styles.header_icon}
+              size={20}
+              name={'align-left'}
+            />
+          </TouchableOpacity>
 
-              <Text style={styles.header_text}>All Projects</Text>
-            </View>
-            <View>
-              <ScrollView>
-                <ScrollView horizontal={true}>
-                  {context.allProject.map(item => (
-                    <View style={styles.project_group} key={item.status}>
-                      <View style={styles.project_group_header}>
-                        <Text style={styles.project_type}>
-                          {item.status_name} ({item.count})
-                        </Text>
-                        <TouchableOpacity>
-                          <FontAwesome5
-                            size={20}
-                            color={'#261d1d'}
-                            name={'ellipsis-v'}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                      {item.projects.map(itemProject => (
-                        <View style={styles.project} key={itemProject.id}>
-                          <View
-                            style={{
-                              ...styles.project_color,
-                              backgroundColor: itemProject.color
-                                ? projectColor[itemProject.color]
-                                : '#fff',
-                            }}></View>
-                          <View style={styles.project_content}>
-                            <View style={styles.project_header}>
-                              <TouchableOpacity
-                                onPress={() =>
-                                  context.changeProjectIsfavorite(
-                                    itemProject.id,
-                                    item.status,
-                                    !itemProject.is_favorite,
-                                  )
-                                }>
-                                {itemProject.is_favorite ? (
-                                  <AntDesign
-                                    size={20}
-                                    color={'#ffdd00'}
-                                    name={'star'}
-                                  />
-                                ) : (
-                                  <AntDesign
-                                    size={20}
-                                    color={'#848a6d'}
-                                    name={'staro'}
-                                  />
-                                )}
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() =>
-                                  this.props.navigation.navigate(
-                                    'ProjectScreen',
-                                    {
-                                      project_id: itemProject.id,
-                                      project_name: itemProject.name,
-                                    },
-                                  )
-                                }>
-                                <Text style={styles.project_name}>
-                                  {itemProject.name}
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                            <Text style={styles.project_username}>
-                              {itemProject.user_id[1]}
+          <Text style={styles.header_text}>All Projects</Text>
+        </View>
+        <View>
+          <ScrollView>
+            <ScrollView horizontal={true}>
+              {this.props.global.allProject.map(item => (
+                <View style={styles.project_group} key={item.status}>
+                  <View style={styles.project_group_header}>
+                    <Text style={styles.project_type}>
+                      {item.status_name} ({item.count})
+                    </Text>
+                    <TouchableOpacity>
+                      <FontAwesome5
+                        size={20}
+                        color={'#261d1d'}
+                        name={'ellipsis-v'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {item.projects.map(itemProject => (
+                    <View style={styles.project} key={itemProject.id}>
+                      <View
+                        style={{
+                          ...styles.project_color,
+                          backgroundColor: itemProject.color
+                            ? projectColor[itemProject.color]
+                            : '#fff',
+                        }}></View>
+                      <View style={styles.project_content}>
+                        <View style={styles.project_header}>
+                          <TouchableOpacity onPress={() => {}}>
+                            {itemProject.is_favorite ? (
+                              <AntDesign
+                                size={20}
+                                color={'#ffdd00'}
+                                name={'star'}
+                              />
+                            ) : (
+                              <AntDesign
+                                size={20}
+                                color={'#848a6d'}
+                                name={'staro'}
+                              />
+                            )}
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => {
+                              this.props.navigation.navigate('ProjectScreen', {
+                                project_id: itemProject.id,
+                                project_name: itemProject.name,
+                                allTask: [],
+                              });
+                            }}>
+                            <Text style={styles.project_name}>
+                              {itemProject.name}
                             </Text>
-                            <Text style={styles.project_task_count}>
-                              {itemProject.task_count} Tasks
-                            </Text>
-                          </View>
+                          </TouchableOpacity>
                         </View>
-                      ))}
+                        <Text style={styles.project_username}>
+                          {itemProject.user_id[1]}
+                        </Text>
+                        <Text style={styles.project_task_count}>
+                          {itemProject.task_count} Tasks
+                        </Text>
+                      </View>
                     </View>
                   ))}
-                </ScrollView>
-              </ScrollView>
-            </View>
-          </View>
-        )}
-      </AuthContext.Consumer>
+                </View>
+              ))}
+            </ScrollView>
+          </ScrollView>
+        </View>
+      </View>
     );
   }
 }
@@ -179,7 +166,7 @@ const styles = StyleSheet.create({
   },
   project: {
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#d6d5ce',
     marginTop: 10,
     flexDirection: 'row',
@@ -217,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AllProject;
+export default withGlobalContext(AllProject);

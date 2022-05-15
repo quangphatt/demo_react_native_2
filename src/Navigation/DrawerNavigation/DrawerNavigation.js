@@ -11,6 +11,7 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
+import {withGlobalContext} from '../../provider/GlobalContext';
 import DrawerContent from './DrawerContent';
 
 import HomeScreen from '../../components/Home/HomeScreen/HomeScreen';
@@ -35,7 +36,7 @@ class DrawerNavigation extends Component {
           drawerActiveBackgroundColor: '#aa18ea',
           drawerActiveTintColor: '#fff',
         }}
-        drawerContent={(props)=>DrawerContent(props)}>
+        drawerContent={(props)=><DrawerContent {...props} />}>
         <Drawer.Screen
           name="My Home"
           component={HomeScreen}
@@ -124,4 +125,4 @@ const styles = StyleSheet.create({
     },
   });
 
-export default DrawerNavigation;
+export default withGlobalContext(DrawerNavigation);

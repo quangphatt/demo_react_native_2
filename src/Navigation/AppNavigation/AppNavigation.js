@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {View, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {AuthContext} from '../../context/AuthContext';
 import DrawerNavigation from '../DrawerNavigation/DrawerNavigation';
 import Login from '../../components/Login';
+import {withGlobalContext} from '../../provider/GlobalContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,25 +17,19 @@ class AppNavigation extends Component {
   render() {
     return (
       <NavigationContainer>
-        <AuthContext.Consumer>
-          {context => {
-            return (
-              <Stack.Navigator
-                screenOptions={{
-                  headerShown: false,
-                }}>
-                {context.isLogin ? ( // TODO: Chỉ dùng 1 NavigationContainer
-                  <Stack.Screen name="Home" component={DrawerNavigation} />
-                ) : (
-                  <Stack.Screen name="Login" component={Login} />
-                )}
-              </Stack.Navigator>
-            );
-          }}
-        </AuthContext.Consumer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          {this.props.global.isLogin ? (
+            <Stack.Screen name="Home" component={DrawerNavigation} />
+          ) : (
+            <Stack.Screen name="Login" component={Login} />
+          )}
+        </Stack.Navigator>
       </NavigationContainer>
     );
   }
 }
 
-export default AppNavigation;
+export default withGlobalContext(AppNavigation);

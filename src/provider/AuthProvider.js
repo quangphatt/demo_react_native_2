@@ -8,6 +8,7 @@ import {
   userInfoURL,
   getAllProjectURL,
   avatarURL,
+  changeProjectIsfavoriteURL
 } from '../service/configURL';
 import fetch_api from '../service/index';
 

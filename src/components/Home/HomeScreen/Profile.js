@@ -10,7 +10,8 @@ import {
 import {Picker} from '@react-native-picker/picker';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {AuthContext} from '../../../context/AuthContext';
+import {withGlobalContext} from '../../../provider/GlobalContext';
+import authBusiness from '../../../business/AuthBusiness';
 
 const langList = [
   {
@@ -61,6 +62,35 @@ class Profile extends Component {
     });
   }
 
+  onLogout = async () => {
+    let result = await authBusiness.onLogout();
+    if (result.status === 'success') {
+      this.props.global.setLogin(false);
+      this.props.global.clearUserInfo();
+    }
+  };
+
+  onChangeCompany=async(newCompany)=>{
+    let result=await authBusiness.changeCompany(this.props.global.uid,newCompany);
+    if(result.status==='success'){
+      await this.getUserInfo();
+    }
+  }
+
+  onChangeLanguage=async(newLanguage)=>{
+    let result=await authBusiness.changeLang(this.props.global.uid,newLanguage);
+    if(result.status==='success'){
+      await this.getUserInfo();
+    }
+  }
+
+  getUserInfo = async () => {
+    let result = await authBusiness.getUserInfo();
+    if (result.status === 'success') {
+      this.props.global.setUserInfo(result.data);
+    }
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -77,102 +107,87 @@ class Profile extends Component {
                 <FontAwesome5 color="#fff" size={20} name={'cog'} />
               </TouchableOpacity>
             </View>
-            <AuthContext.Consumer>
-              {context => (
-                <View style={styles.header_info}>
-                  <View>
-                    <Image
-                      style={styles.avt}
-                      source={
-                        context.userInfo.avatar === ''
-                          ? require('../../../assets/images/user.png')
-                          : {uri: context.userInfo.avatar}
-                      }
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.name}>{context.userInfo.name}</Text>
-                    <Text style={styles.username}>
-                      {context.userInfo.username}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            </AuthContext.Consumer>
+            <View style={styles.header_info}>
+              <View>
+                <Image
+                  style={styles.avt}
+                  source={
+                    this.props.global.avatar === ''
+                      ? require('../../../assets/images/user.png')
+                      : {uri: this.props.global.avatar}
+                  }
+                />
+              </View>
+              <View>
+                <Text style={styles.name}>{this.props.global.name}</Text>
+                <Text style={styles.username}>{this.props.global.username}</Text>
+              </View>
+            </View>
           </View>
         </ImageBackground>
 
-        <AuthContext.Consumer>
-          {context => (
-            <View style={styles.dropdown_wrapper}>
-              <DropDownPicker
-                items={context.userInfo.allowedCompany.map(item => ({
-                  value: item[0],
-                  label: item[1],
-                  icon: () => (
-                    <Image
-                      source={
-                        {
-                          uri:
-                            'https://uat.xboss.com/web/image/res.company/' +
-                            item[0] +
-                            '/logo/100x100',
-                        } || require('../../../assets/images/user.png')
-                      }
-                      style={styles.dropdown_icon}
-                    />
-                  ),
-                }))}
-                value={context.userInfo.currentCompany[0]}
-                open={this.state.openCompany}
-                setOpen={this.setOpenCompany}
-                setValue={newCompany => {
-                  context.changeCompany(newCompany());
-                }}
-                style={styles.dropDownPicker}
-                dropDownContainerStyle={styles.dropDownPicker_list}
-                zIndex={3000}
-                zIndexInverse={1000}
-                labelStyle={styles.labelStyle}
-                arrowIconStyle={styles.arrowIconStyle}
-              />
-              <DropDownPicker
-                items={langList}
-                value={
-                  langList.find(item => item.value === context.userInfo.lang)
-                    .value
-                }
-                open={this.state.openLanguage}
-                setOpen={this.setOpenLanguage}
-                setValue={newLang => {
-                  context.changeLanguage(newLang());
-                }}
-                style={styles.dropDownPicker}
-                dropDownContainerStyle={styles.dropDownPicker_list}
-                zIndex={2000}
-                zIndexInverse={2000}
-                labelStyle={styles.labelStyle}
-                arrowIconStyle={styles.arrowIconStyle}
+        <View style={styles.dropdown_wrapper}>
+          <DropDownPicker
+            items={this.props.global.allowedCompany.map(item => ({
+              value: item[0],
+              label: item[1],
+              icon: () => (
+                <Image
+                  source={
+                    {
+                      uri:
+                        'https://uat.xboss.com/web/image/res.company/' +
+                        item[0] +
+                        '/logo/100x100',
+                    } || require('../../../assets/images/user.png')
+                  }
+                  style={styles.dropdown_icon}
+                />
+              ),
+            }))}
+            value={this.props.global.currentCompany[0]}
+            open={this.state.openCompany}
+            setOpen={this.setOpenCompany}
+            setValue={newCompany => {
+              this.onChangeCompany(newCompany());
+            }}
+            style={styles.dropDownPicker}
+            dropDownContainerStyle={styles.dropDownPicker_list}
+            zIndex={3000}
+            zIndexInverse={1000}
+            labelStyle={styles.labelStyle}
+            arrowIconStyle={styles.arrowIconStyle}
+          />
+          <DropDownPicker
+            items={langList}
+            value={
+              langList.find(item => item.value === this.props.global.lang).value
+            }
+            open={this.state.openLanguage}
+            setOpen={this.setOpenLanguage}
+            setValue={newLang => {
+              this.onChangeLanguage(newLang());
+            }}
+            style={styles.dropDownPicker}
+            dropDownContainerStyle={styles.dropDownPicker_list}
+            zIndex={2000}
+            zIndexInverse={2000}
+            labelStyle={styles.labelStyle}
+            arrowIconStyle={styles.arrowIconStyle}
+          />
+        </View>
+        <View>
+          <TouchableOpacity style={styles.logout_wrapper} onPress={this.onLogout}>
+            <View style={styles.logout_icon_wrapper}>
+              <FontAwesome5
+                name="power-off"
+                size={24}
+                color={'#ff0000'}
+                style={styles.logout_icon}
               />
             </View>
-          )}
-        </AuthContext.Consumer>
-        <View>
-          <AuthContext.Consumer>
-            {({logout}) => (
-              <TouchableOpacity style={styles.logout_wrapper} onPress={logout}>
-                <View style={styles.logout_icon_wrapper}>
-                  <FontAwesome5
-                    name="power-off"
-                    size={24}
-                    color={'#ff0000'}
-                    style={styles.logout_icon}
-                  />
-                </View>
-                <Text style={styles.logout_text}>Log out</Text>
-              </TouchableOpacity>
-            )}
-          </AuthContext.Consumer>
+            <Text style={styles.logout_text}>Log out</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -252,4 +267,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile;
+export default withGlobalContext(Profile);

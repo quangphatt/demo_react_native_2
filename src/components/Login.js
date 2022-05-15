@@ -9,11 +9,14 @@ import {
   Dimensions,
 } from 'react-native';
 import {AuthContext} from '../context/AuthContext';
+import {withGlobalContext} from '../provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import SuccessModal from '../modal/SuccessModal';
 import fetch_api from '../service';
-import { loginURL } from '../service/configURL';
+import {loginURL} from '../service/configURL';
+
+import authBusiness from '../business/AuthBusiness';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').witdh;
@@ -34,6 +37,60 @@ class Login extends Component {
     this.setState({
       showPassword: !this.state.showPassword,
     });
+  };
+
+  onLogin = async () => {
+    let result = await authBusiness.onLogin(
+      this.state.username,
+      this.state.password,
+    );
+    if (result.status === 'success') {
+      await this.getUserInfo();
+      await this.getProjectStatus();
+      await this.getAllProject();
+      this.props.global.setLogin(true);
+    }
+  };
+
+  getUserInfo = async () => {
+    let result = await authBusiness.getUserInfo();
+    if (result.status === 'success') {
+      this.props.global.setUserInfo(result.data);
+    }
+  };
+
+  getProjectStatus = async () => {
+    let result = await authBusiness.getProjectStatus(
+      this.props.global.uid,
+      this.props.global.lang,
+    );
+    if (result.status === 'success') {
+      var arrres = result.data.map(item => ({
+        status: item.project_status[0],
+        status_name: item.project_status[1],
+        count: item.project_status_count,
+        projects: [],
+      }));
+      this.props.global.setAllProject(arrres);
+    }
+  };
+
+  getAllProject = async () => {
+    let result = await authBusiness.getAllProject(
+      this.props.global.uid,
+      this.props.global.lang,
+    );
+    if (result.status === 'success') {
+      let allProject = this.props.global.allProject;
+      result.data.records.forEach(itemProject => {
+        for (let i = 0; i < allProject.length; i++) {
+          if (itemProject.project_status[0] === allProject[i].status) {
+            allProject[i].projects.push(itemProject);
+          }
+        }
+      });
+      this.props.global.setAllProject(allProject);
+    }
   };
 
   render() {
@@ -95,39 +152,9 @@ class Login extends Component {
         </View>
 
         <View style={{alignItems: 'center'}}>
-          <AuthContext.Consumer>
-            {context => {
-              return (
-                <TouchableOpacity
-                  style={styles.btn_signin}
-                  onPress={() => {
-                    var params = {
-                      db: 'xboss_uat25052021',
-                      login: this.state.username,
-                      password: this.state.password,
-                    };
-                    fetch_api(
-                      {params: params},
-                      res => !res.data.error,
-                      loginURL,
-                    )
-                      .then((res) => {
-                        this.setState({showSuccessLoginModal:true})
-                        context.getUserInfo();
-                        context.getProjectStatus();
-                        context.getAllProject();
-                        // this.setState({showSuccessLoginModal:true})
-                        context.login();
-                      })
-                      .catch(() => {
-                        console.log('Incorrect Username or Password'); // TODO: Lỗi thì hiển thị Modal thông báo lên
-                      });
-                  }}>
-                  <Text style={styles.btn_text}>Sign In</Text>
-                </TouchableOpacity>
-              );
-            }}
-          </AuthContext.Consumer>
+          <TouchableOpacity style={styles.btn_signin} onPress={this.onLogin}>
+            <Text style={styles.btn_text}>Sign In</Text>
+          </TouchableOpacity>
 
           <View
             style={{
@@ -163,17 +190,6 @@ class Login extends Component {
             <Text style={styles.btn_text}> Sign In With Google</Text>
           </TouchableOpacity>
         </View>
-        <AuthContext.Consumer>
-          {context => (
-            <SuccessModal
-              isVisible={this.state.showSuccessLoginModal}
-              onBackdropPress={() =>
-                this.setState({showSuccessLoginModal: false})
-              }
-              pressButton={() => this.setState({showSuccessLoginModal: false})}
-            />
-          )}
-        </AuthContext.Consumer>
       </View>
     );
   }
@@ -265,4 +281,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default withGlobalContext(Login);

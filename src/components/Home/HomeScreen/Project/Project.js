@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   },
   task: {
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#d6d5ce',
     marginTop: 10,
     flexDirection: 'row',
