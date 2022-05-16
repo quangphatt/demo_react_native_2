@@ -16,7 +16,7 @@ import SuccessModal from '../modal/SuccessModal';
 import fetch_api from '../service';
 import {loginURL} from '../service/configURL';
 
-import authBusiness from '../business/AuthBusiness';
+import {onLogin} from '../business/AuthBusiness';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').witdh;
@@ -27,7 +27,6 @@ class Login extends Component {
     this.state = {
       showPassword: false,
       username: '',
-      password: '',
       showSuccessLoginModal: false,
       showFailLoginModal: false,
     };
@@ -37,60 +36,6 @@ class Login extends Component {
     this.setState({
       showPassword: !this.state.showPassword,
     });
-  };
-
-  onLogin = async () => {
-    let result = await authBusiness.onLogin(
-      this.state.username,
-      this.state.password,
-    );
-    if (result.status === 'success') {
-      await this.getUserInfo();
-      await this.getProjectStatus();
-      await this.getAllProject();
-      this.props.global.setLogin(true);
-    }
-  };
-
-  getUserInfo = async () => {
-    let result = await authBusiness.getUserInfo();
-    if (result.status === 'success') {
-      this.props.global.setUserInfo(result.data);
-    }
-  };
-
-  getProjectStatus = async () => {
-    let result = await authBusiness.getProjectStatus(
-      this.props.global.uid,
-      this.props.global.lang,
-    );
-    if (result.status === 'success') {
-      var arrres = result.data.map(item => ({
-        status: item.project_status[0],
-        status_name: item.project_status[1],
-        count: item.project_status_count,
-        projects: [],
-      }));
-      this.props.global.setAllProject(arrres);
-    }
-  };
-
-  getAllProject = async () => {
-    let result = await authBusiness.getAllProject(
-      this.props.global.uid,
-      this.props.global.lang,
-    );
-    if (result.status === 'success') {
-      let allProject = this.props.global.allProject;
-      result.data.records.forEach(itemProject => {
-        for (let i = 0; i < allProject.length; i++) {
-          if (itemProject.project_status[0] === allProject[i].status) {
-            allProject[i].projects.push(itemProject);
-          }
-        }
-      });
-      this.props.global.setAllProject(allProject);
-    }
   };
 
   render() {
@@ -152,7 +97,15 @@ class Login extends Component {
         </View>
 
         <View style={{alignItems: 'center'}}>
-          <TouchableOpacity style={styles.btn_signin} onPress={this.onLogin}>
+          <TouchableOpacity
+            style={styles.btn_signin}
+            onPress={() => {
+              onLogin(
+                this.props.global,
+                this.state.username,
+                this.state.password,
+              );
+            }}>
             <Text style={styles.btn_text}>Sign In</Text>
           </TouchableOpacity>
 

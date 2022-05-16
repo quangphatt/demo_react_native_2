@@ -20,10 +20,6 @@ class Project extends Component {
     };
   }
 
-  loadProjectData=()=>{
-    
-  }
-
   render() {
     return (
       <View style={styles.container}>

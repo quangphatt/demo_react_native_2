@@ -11,7 +11,11 @@ import {Picker} from '@react-native-picker/picker';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {withGlobalContext} from '../../../provider/GlobalContext';
-import authBusiness from '../../../business/AuthBusiness';
+import {
+  onLogout,
+  onChangeCompany,
+  onChangeLanguage,
+} from '../../../business/AuthBusiness';
 
 const langList = [
   {
@@ -62,35 +66,6 @@ class Profile extends Component {
     });
   }
 
-  onLogout = async () => {
-    let result = await authBusiness.onLogout();
-    if (result.status === 'success') {
-      this.props.global.setLogin(false);
-      this.props.global.clearUserInfo();
-    }
-  };
-
-  onChangeCompany=async(newCompany)=>{
-    let result=await authBusiness.changeCompany(this.props.global.uid,newCompany);
-    if(result.status==='success'){
-      await this.getUserInfo();
-    }
-  }
-
-  onChangeLanguage=async(newLanguage)=>{
-    let result=await authBusiness.changeLang(this.props.global.uid,newLanguage);
-    if(result.status==='success'){
-      await this.getUserInfo();
-    }
-  }
-
-  getUserInfo = async () => {
-    let result = await authBusiness.getUserInfo();
-    if (result.status === 'success') {
-      this.props.global.setUserInfo(result.data);
-    }
-  };
-
   render() {
     return (
       <View style={styles.container}>
@@ -112,15 +87,16 @@ class Profile extends Component {
                 <Image
                   style={styles.avt}
                   source={
-                    this.props.global.avatar === ''
-                      ? require('../../../assets/images/user.png')
-                      : {uri: this.props.global.avatar}
+                    {uri: this.props.global.avatar} ||
+                    require('../../../assets/images/user.png')
                   }
                 />
               </View>
               <View>
                 <Text style={styles.name}>{this.props.global.name}</Text>
-                <Text style={styles.username}>{this.props.global.username}</Text>
+                <Text style={styles.username}>
+                  {this.props.global.username}
+                </Text>
               </View>
             </View>
           </View>
@@ -149,7 +125,7 @@ class Profile extends Component {
             open={this.state.openCompany}
             setOpen={this.setOpenCompany}
             setValue={newCompany => {
-              this.onChangeCompany(newCompany());
+              onChangeCompany(this.props.global, newCompany());
             }}
             style={styles.dropDownPicker}
             dropDownContainerStyle={styles.dropDownPicker_list}
@@ -166,7 +142,7 @@ class Profile extends Component {
             open={this.state.openLanguage}
             setOpen={this.setOpenLanguage}
             setValue={newLang => {
-              this.onChangeLanguage(newLang());
+              onChangeLanguage(this.props.global, newLang());
             }}
             style={styles.dropDownPicker}
             dropDownContainerStyle={styles.dropDownPicker_list}
@@ -177,7 +153,9 @@ class Profile extends Component {
           />
         </View>
         <View>
-          <TouchableOpacity style={styles.logout_wrapper} onPress={this.onLogout}>
+          <TouchableOpacity
+            style={styles.logout_wrapper}
+            onPress={() => onLogout(this.props.global)}>
             <View style={styles.logout_icon_wrapper}>
               <FontAwesome5
                 name="power-off"
