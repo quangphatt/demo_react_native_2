@@ -14,16 +14,8 @@ import {
   ImageBackground,
 } from 'react-native';
 import {withGlobalContext} from '../../provider/GlobalContext';
-import authBusiness from '../../business/AuthBusiness';
+import {onLogout} from '../../business/AuthBusiness';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
-const onLogout = async (global) => {
-  let result = await authBusiness.onLogout();
-  if (result.status === 'success') {
-    global.setLogin(false);
-    global.clearUserInfo();
-  }
-};
 
 const DrawerContent = props => (
   <View style={{flex: 1}}>
@@ -34,9 +26,8 @@ const DrawerContent = props => (
         <View>
           <Image
             source={
-              props.global.avatar === ''
-                ? require('../../assets/images/user.png')
-                : {uri: props.global.avatar}
+              {uri: props.global.avatar} ||
+              require('../../assets/images/user.png')
             }
             style={{
               height: 80,
@@ -73,7 +64,10 @@ const DrawerContent = props => (
         borderTopWidth: 1,
         borderTopColor: '#ccc',
       }}>
-      <TouchableOpacity onPress={()=>{onLogout(props.global)}}>
+      <TouchableOpacity
+        onPress={() => {
+          onLogout(props.global);
+        }}>
         <View style={styles.drawer_item}>
           <View style={styles.icon_wrapper}>
             <FontAwesome5

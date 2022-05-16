@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import Provider from './src/provider/Provider';
 import AppNavigation from './src/Navigation/AppNavigation/AppNavigation';
 import GlobalContext from './src/provider/GlobalContext'
 

@@ -104,6 +104,7 @@ export class GlobalContextProvider extends React.Component {
           setCompany: this.setCompany,
           setLanguage: this.setLanguage,
           clearUserInfo: this.clearUserInfo,
+          showAlert: this.showAlert,
         }}>
         {this.props.children}
       </GlobalContext.Provider>

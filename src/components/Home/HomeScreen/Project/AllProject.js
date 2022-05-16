@@ -9,7 +9,7 @@ import {
 import {withGlobalContext} from '../../../../provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import fetch_api from '../../../../service';
+import {onChangeProjectIsFavorite} from '../../../../business/AuthBusiness';
 
 const projectColor = {
   0: '#fff',
@@ -76,7 +76,14 @@ class AllProject extends Component {
                         }}></View>
                       <View style={styles.project_content}>
                         <View style={styles.project_header}>
-                          <TouchableOpacity onPress={() => {}}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              onChangeProjectIsFavorite(
+                                this.props.global,
+                                itemProject.id,
+                                !itemProject.is_favorite,
+                              )
+                            }>
                             {itemProject.is_favorite ? (
                               <AntDesign
                                 size={20}
