@@ -10,6 +10,22 @@ import {
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Rating} from 'react-native-ratings';
+import {avatarURL, partnerAvatarURL} from '../../../../service/configURL';
+
+const taskColor = {
+  0: '#fff',
+  1: '#f06050',
+  2: '#f4a460',
+  3: '#f7cd1f',
+  4: '#6cc1ed',
+  5: '#814968',
+  6: '#eb7e7f',
+  7: '#2c8397',
+  8: '#475577',
+  9: '#d6145f',
+  10: '#30c381',
+  11: '#9365b8',
+};
 
 class Project extends Component {
   constructor(props) {
@@ -17,6 +33,7 @@ class Project extends Component {
     this.state = {
       project_id: this.props.route.params.project_id,
       project_name: this.props.route.params.project_name,
+      allTask: this.props.route.params.allTask,
     };
   }
 
@@ -37,63 +54,98 @@ class Project extends Component {
           <Text style={styles.header_text}>{this.state.project_name}</Text>
         </View>
         <View>
-          <ScrollView>
-            <View style={styles.stage}>
-              <View style={styles.stage_header}>
-                <Text style={styles.stage_name}>Backlog/Feedback (26)</Text>
-              </View>
-              <View style={styles.task}>
-                <View
-                  style={{
-                    ...styles.task_color,
-                    backgroundColor: '#f00',
-                  }}></View>
-                <View style={styles.task_content}>
-                  <View style={styles.task_header}>
-                    <TouchableOpacity
-                      onPress={() => this.props.navigation.navigate('Task')}>
-                      <Text style={styles.task_name}>
-                        [Bug] Sale_Add multi product hiển thị thông báo khi
-                        người dùng click vào chức năng này.
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.item_wrapper}>
-                    <Text style={styles.item_label}>Status</Text>
-                    <Text style={styles.task_status}>In Progress</Text>
-                  </View>
-                  <View style={styles.item_wrapper}>
-                    <Text style={styles.item_label}>Assigned</Text>
-                    <View style={styles.user_img_wrapper}>
-                      <Image
-                        style={styles.user_img}
-                        source={require('../../../../assets/images/user.png')}
-                      />
-                      <Text style={{color: '#664e4d',fontSize: 18,marginLeft: 5, marginRight: 5,}}>></Text>
-                      <Image
-                        style={styles.user_img}
-                        source={require('../../../../assets/images/user.png')}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.item_wrapper}>
-                    <Text style={styles.item_label}>Priority</Text>
-                    <Rating
-                      ratingCount={3}
-                      startingValue={1}
-                      onFinishRating={num => {}}
-                      imageSize={20}
-                    />
-                  </View>
-                  <View style={styles.item_wrapper}>
-                    <Text style={styles.item_label}>Deadline</Text>
-                    <Text style={styles.task_deadline}>
-                      2021-05-14 00:00:00
-                    </Text>
-                  </View>
+          <ScrollView horizontal={true}>
+            {this.state.allTask.map(item => (
+              <View style={styles.stage} key={item.stage_id}>
+                <View style={styles.stage_header}>
+                  <Text style={styles.stage_name}>
+                    {item.stage_name} ({item.stage_count})
+                  </Text>
                 </View>
+                <ScrollView>
+                  {item.tasks.map(itemTask => (
+                    <View style={styles.task} key={itemTask.id}>
+                      <View
+                        style={{
+                          ...styles.task_color,
+                          backgroundColor: itemTask.color
+                            ? taskColor[itemTask.color]
+                            : '#fff',
+                        }}></View>
+                      <View style={styles.task_content}>
+                        <View style={styles.task_header}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.props.navigation.navigate('Task', {
+                                task_id: itemTask.id,
+                                task_name: itemTask.name,
+                              })
+                            }>
+                            <Text style={styles.task_name}>
+                              {itemTask.name}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.item_wrapper}>
+                          <Text style={styles.item_label}>Status</Text>
+                          <Text style={styles.task_status}>
+                            {itemTask.kanban_state_label}
+                          </Text>
+                        </View>
+                        <View style={styles.item_wrapper}>
+                          <Text style={styles.item_label}>Assigned</Text>
+                          <View style={styles.user_img_wrapper}>
+                            <Image
+                              style={styles.user_img}
+                              source={
+                                {
+                                  uri:
+                                    partnerAvatarURL + itemTask.creator_id[0],
+                                } ||
+                                require('../../../../assets/images/user.png')
+                              }
+                            />
+                            <Text
+                              style={{
+                                color: '#664e4d',
+                                fontSize: 18,
+                                marginLeft: 5,
+                                marginRight: 5,
+                              }}>
+                              >
+                            </Text>
+                            <Image
+                              style={styles.user_img}
+                              source={
+                                {uri: avatarURL + itemTask.user_id[0]} ||
+                                require('../../../../assets/images/user.png')
+                              }
+                            />
+                          </View>
+                        </View>
+                        <View style={styles.item_wrapper}>
+                          <Text style={styles.item_label}>Priority</Text>
+                          <Rating
+                            ratingCount={3}
+                            startingValue={itemTask.priority}
+                            onFinishRating={num => {}}
+                            imageSize={20}
+                          />
+                        </View>
+                        {itemTask.date_deadline && (
+                          <View style={styles.item_wrapper}>
+                            <Text style={styles.item_label}>Deadline</Text>
+                            <Text style={styles.task_deadline}>
+                              {itemTask.date_deadline}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
-            </View>
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -123,7 +175,7 @@ const styles = StyleSheet.create({
   },
   header_text: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
   },
   stage: {
     width: 360,
@@ -157,6 +209,7 @@ const styles = StyleSheet.create({
   },
   task_content: {
     padding: 10,
+    width: '100%',
   },
   task_header: {
     flexDirection: 'row',
@@ -165,8 +218,6 @@ const styles = StyleSheet.create({
   },
   task_name: {
     color: '#4848db',
-    // paddingLeft: 10,
-    // paddingRight: 15,
     fontSize: 16,
   },
   item_wrapper: {
@@ -174,8 +225,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 8,
-    paddingLeft: 5,
-    paddingRight: 5,
+    paddingRight: 10,
   },
   item_label: {
     color: '#000',
@@ -186,8 +236,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   user_img: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     borderRadius: 15,
   },
   task_status: {

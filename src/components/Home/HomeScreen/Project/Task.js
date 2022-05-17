@@ -11,7 +11,7 @@ class Task extends Component {
   render() {
     return (
       <View>
-        <Text> Task </Text>
+        <Text style={{color:'#000'}}>{this.props.route.params.task_name}</Text>
       </View>
     );
   }

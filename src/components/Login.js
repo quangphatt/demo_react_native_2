@@ -8,13 +8,8 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import {AuthContext} from '../context/AuthContext';
 import {withGlobalContext} from '../provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
-import SuccessModal from '../modal/SuccessModal';
-import fetch_api from '../service';
-import {loginURL} from '../service/configURL';
 
 import {onLogin} from '../business/AuthBusiness';
 
@@ -28,8 +23,6 @@ class Login extends Component {
       showPassword: false,
       username: '',
       password: '',
-      showSuccessLoginModal: false,
-      showFailLoginModal: false,
     };
   }
 

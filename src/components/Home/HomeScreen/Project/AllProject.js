@@ -9,7 +9,10 @@ import {
 import {withGlobalContext} from '../../../../provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {onChangeProjectIsFavorite} from '../../../../business/AuthBusiness';
+import {
+  onChangeProjectIsFavorite,
+  getAllTask,
+} from '../../../../business/ProjectManageBusiness';
 
 const projectColor = {
   0: '#fff',
@@ -49,22 +52,22 @@ class AllProject extends Component {
           <Text style={styles.header_text}>All Projects</Text>
         </View>
         <View>
-          <ScrollView>
-            <ScrollView horizontal={true}>
-              {this.props.global.allProject.map(item => (
-                <View style={styles.project_group} key={item.status}>
-                  <View style={styles.project_group_header}>
-                    <Text style={styles.project_type}>
-                      {item.status_name} ({item.count})
-                    </Text>
-                    <TouchableOpacity>
-                      <FontAwesome5
-                        size={20}
-                        color={'#261d1d'}
-                        name={'ellipsis-v'}
-                      />
-                    </TouchableOpacity>
-                  </View>
+          <ScrollView horizontal={true}>
+            {this.props.global.allProject.map(item => (
+              <View style={styles.project_group} key={item.status}>
+                <View style={styles.project_group_header}>
+                  <Text style={styles.project_type}>
+                    {item.status_name} ({item.count})
+                  </Text>
+                  <TouchableOpacity>
+                    <FontAwesome5
+                      size={20}
+                      color={'#261d1d'}
+                      name={'ellipsis-v'}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView>
                   {item.projects.map(itemProject => (
                     <View style={styles.project} key={itemProject.id}>
                       <View
@@ -99,11 +102,16 @@ class AllProject extends Component {
                             )}
                           </TouchableOpacity>
                           <TouchableOpacity
-                            onPress={() => {
+                            onPress={async () => {
+                              let allTask = await getAllTask(
+                                this.props.global.uid,
+                                this.props.global.lang,
+                                itemProject.id,
+                              );
                               this.props.navigation.navigate('ProjectScreen', {
                                 project_id: itemProject.id,
                                 project_name: itemProject.name,
-                                allTask: [],
+                                allTask: allTask,
                               });
                             }}>
                             <Text style={styles.project_name}>
@@ -120,9 +128,9 @@ class AllProject extends Component {
                       </View>
                     </View>
                   ))}
-                </View>
-              ))}
-            </ScrollView>
+                </ScrollView>
+              </View>
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -161,6 +169,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     marginBottom: 0,
+    height: '100%',
   },
   project_group_header: {
     flexDirection: 'row',
