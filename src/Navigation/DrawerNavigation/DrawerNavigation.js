@@ -11,12 +11,13 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
-import {withGlobalContext} from '../../provider/GlobalContext';
+import {withGlobalContext} from '~/provider/GlobalContext';
 import DrawerContent from './DrawerContent';
 
-import HomeScreen from '../../components/Home/HomeScreen/HomeScreen';
-import Setting from '../../components/Home/Setting';
-import About from '../../components/Home/About';
+import HomeScreen from '~/components/Home/HomeScreen/HomeScreen';
+import AllProject from '~/components/Home/HomeScreen/Project/AllProject';
+import Setting from '~/components/Home/Setting';
+import About from '~/components/Home/About';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Drawer = createDrawerNavigator();
@@ -56,52 +57,7 @@ class DrawerNavigation extends Component {
               </View>
             ),
           }}
-        />
-        <Drawer.Screen
-          name="Setting"
-          component={Setting}
-          style={styles.drawer_screen}
-          options={{
-            drawerLabel: ({color}) => (
-              <View style={styles.drawer_item}>
-                <View style={styles.icon_wrapper}>
-                  <FontAwesome5
-                    name="cog"
-                    style={styles.icon}
-                    size={16}
-                    color={color}
-                  />
-                </View>
-                <Text style={{color: color, ...styles.drawer_txt}}>
-                  Setting
-                </Text>
-              </View>
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="About"
-          component={About}
-          style={styles.drawer_screen}
-          options={{
-            drawerLabel: ({color}) => (
-              <View style={styles.drawer_item}>
-                <View style={styles.icon_wrapper}>
-                  <FontAwesome5
-                    name="info"
-                    style={styles.icon}
-                    size={16}
-                    color={color}
-                  />
-                </View>
-
-                <Text style={{color: color, ...styles.drawer_txt}}>
-                  About Us
-                </Text>
-              </View>
-            ),
-          }}
-        />
+        />        
       </Drawer.Navigator>
     );
   }

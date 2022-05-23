@@ -6,13 +6,13 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import {withGlobalContext} from '../../../../provider/GlobalContext';
+import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {
   onChangeProjectIsFavorite,
   getAllTask,
-} from '../../../../business/ProjectManageBusiness';
+} from '~/business/ProjectManageBusiness';
 
 const projectColor = {
   0: '#fff',
@@ -35,13 +35,35 @@ class AllProject extends Component {
     this.state = {};
   }
 
+  openDrawerNavigation = () => this.props.navigation.openDrawer();
+
+  onChangeProjectIsFavorite = () =>
+    onChangeProjectIsFavorite(
+      this.props.global,
+      itemProject.id,
+      !itemProject.is_favorite,
+    );
+
+  loadProjectTask = async itemProject => {
+    let allTask = await getAllTask(
+      this.props.global.uid,
+      this.props.global.lang,
+      itemProject.id,
+    );
+    this.props.navigation.navigate('ProjectScreen', {
+      project_id: itemProject.id,
+      project_name: itemProject.name,
+      allTask: allTask,
+    });
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.header_icon_wrapper}
-            onPress={() => this.props.navigation.openDrawer()}>
+            onPress={this.openDrawerNavigation}>
             <FontAwesome5
               style={styles.header_icon}
               size={20}
@@ -80,13 +102,7 @@ class AllProject extends Component {
                       <View style={styles.project_content}>
                         <View style={styles.project_header}>
                           <TouchableOpacity
-                            onPress={() =>
-                              onChangeProjectIsFavorite(
-                                this.props.global,
-                                itemProject.id,
-                                !itemProject.is_favorite,
-                              )
-                            }>
+                            onPress={this.onChangeProjectIsFavorite}>
                             {itemProject.is_favorite ? (
                               <AntDesign
                                 size={20}
@@ -102,18 +118,7 @@ class AllProject extends Component {
                             )}
                           </TouchableOpacity>
                           <TouchableOpacity
-                            onPress={async () => {
-                              let allTask = await getAllTask(
-                                this.props.global.uid,
-                                this.props.global.lang,
-                                itemProject.id,
-                              );
-                              this.props.navigation.navigate('ProjectScreen', {
-                                project_id: itemProject.id,
-                                project_name: itemProject.name,
-                                allTask: allTask,
-                              });
-                            }}>
+                            onPress={()=>this.loadProjectTask(itemProject)}>
                             <Text style={styles.project_name}>
                               {itemProject.name}
                             </Text>
@@ -141,7 +146,7 @@ class AllProject extends Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e9ecf2',
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
   header: {
     flexDirection: 'row',

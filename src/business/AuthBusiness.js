@@ -1,7 +1,7 @@
-import Service from '../service';
-import {loginURL, logoutURL, userInfoURL} from '../service/configURL';
+import Service from '~/service';
+import {loginURL, logoutURL, userInfoURL} from '~/service/configURL';
 import axios from 'axios';
-import host from '../service/host';
+import host from '~/service/host';
 import {getAllProject} from './ProjectManageBusiness';
 
 class AuthBusiness extends Service {

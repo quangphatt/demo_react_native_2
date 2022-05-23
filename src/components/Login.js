@@ -8,10 +8,10 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import {withGlobalContext} from '../provider/GlobalContext';
+import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-import {onLogin} from '../business/AuthBusiness';
+import {onLogin} from '~/business/AuthBusiness';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').witdh;
@@ -32,6 +32,22 @@ class Login extends Component {
     });
   };
 
+  onChangeUsername = newUsername => {
+    this.setState({
+      username: newUsername,
+    });
+  };
+
+  onChangePassword = newPass => {
+    this.setState({
+      password: newPass,
+    });
+  };
+
+  onLogin = () => {
+    onLogin(this.props.global, this.state.username, this.state.password);
+  };
+
   render() {
     return (
       <View style={styles.login_wrapper}>
@@ -49,11 +65,7 @@ class Login extends Component {
               placeholder="Email"
               placeholderTextColor="#94abb3"
               value={this.state.username}
-              onChangeText={newUsername => {
-                this.setState({
-                  username: newUsername,
-                });
-              }}
+              onChangeText={this.onChangeUsername}
             />
             <TouchableOpacity style={styles.icon_wrapper}>
               <FontAwesome5 style={styles.icon} name={'user-plus'} />
@@ -67,11 +79,7 @@ class Login extends Component {
               placeholderTextColor="#94abb3"
               secureTextEntry={!this.state.showPassword}
               value={this.state.password}
-              onChangeText={newPass => {
-                this.setState({
-                  password: newPass,
-                });
-              }}
+              onChangeText={this.onChangePassword}
             />
             <TouchableOpacity
               style={styles.icon_wrapper}
@@ -91,15 +99,7 @@ class Login extends Component {
         </View>
 
         <View style={{alignItems: 'center'}}>
-          <TouchableOpacity
-            style={styles.btn_signin}
-            onPress={() => {
-              onLogin(
-                this.props.global,
-                this.state.username,
-                this.state.password,
-              );
-            }}>
+          <TouchableOpacity style={styles.btn_signin} onPress={this.onLogin}>
             <Text style={styles.btn_text}>Sign In</Text>
           </TouchableOpacity>
 

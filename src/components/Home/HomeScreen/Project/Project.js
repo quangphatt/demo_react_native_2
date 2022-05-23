@@ -10,7 +10,9 @@ import {
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Rating} from 'react-native-ratings';
-import {avatarURL, partnerAvatarURL} from '../../../../service/configURL';
+import {withGlobalContext} from '~/provider/GlobalContext';
+import {avatarURL, partnerAvatarURL} from '~/service/configURL';
+import {onChangeTaskPriority} from '~/business/ProjectManageBusiness';
 
 const taskColor = {
   0: '#fff',
@@ -37,13 +39,32 @@ class Project extends Component {
     };
   }
 
+  openDrawerNavigation = () => this.props.navigation.openDrawer();
+
+  loadTaskScreen = itemTask =>
+    this.props.navigation.navigate('Task', {
+      task_id: itemTask.id,
+      task_name: itemTask.name,
+    });
+
+  onChangeTaskPriority = async (num, itemTask) =>
+    this.setState({
+      allTask: await onChangeTaskPriority(
+        this.props.global.uid,
+        this.props.global.lang,
+        this.state.project_id,
+        itemTask.id,
+        num,
+      ),
+    });
+
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.header_icon_wrapper}
-            onPress={() => this.props.navigation.openDrawer()}>
+            onPress={this.openDrawerNavigation}>
             <FontAwesome5
               style={styles.header_icon}
               size={20}
@@ -59,7 +80,7 @@ class Project extends Component {
               <View style={styles.stage} key={item.stage_id}>
                 <View style={styles.stage_header}>
                   <Text style={styles.stage_name}>
-                    {item.stage_name} ({item.stage_count})
+                    {item.stage_name || 'Undefined'} ({item.stage_count})
                   </Text>
                 </View>
                 <ScrollView>
@@ -75,12 +96,7 @@ class Project extends Component {
                       <View style={styles.task_content}>
                         <View style={styles.task_header}>
                           <TouchableOpacity
-                            onPress={() =>
-                              this.props.navigation.navigate('Task', {
-                                task_id: itemTask.id,
-                                task_name: itemTask.name,
-                              })
-                            }>
+                            onPress={() => this.loadTaskScreen(itemTask)}>
                             <Text style={styles.task_name}>
                               {itemTask.name}
                             </Text>
@@ -101,8 +117,7 @@ class Project extends Component {
                                 {
                                   uri:
                                     partnerAvatarURL + itemTask.creator_id[0],
-                                } ||
-                                require('../../../../assets/images/user.png')
+                                } || require('~/assets/images/user.png')
                               }
                             />
                             <Text
@@ -118,7 +133,7 @@ class Project extends Component {
                               style={styles.user_img}
                               source={
                                 {uri: avatarURL + itemTask.user_id[0]} ||
-                                require('../../../../assets/images/user.png')
+                                require('~/assets/images/user.png')
                               }
                             />
                           </View>
@@ -128,7 +143,9 @@ class Project extends Component {
                           <Rating
                             ratingCount={3}
                             startingValue={itemTask.priority}
-                            onFinishRating={num => {}}
+                            onFinishRating={num =>
+                              this.onChangeTaskPriority(num, itemTask)
+                            }
                             imageSize={20}
                           />
                         </View>
@@ -156,7 +173,7 @@ class Project extends Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e9ecf2',
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   header: {
     flexDirection: 'row',
@@ -248,4 +265,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Project;
+export default withGlobalContext(Project);

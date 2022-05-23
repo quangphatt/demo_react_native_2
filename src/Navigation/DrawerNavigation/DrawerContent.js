@@ -13,21 +13,20 @@ import {
   Image,
   ImageBackground,
 } from 'react-native';
-import {withGlobalContext} from '../../provider/GlobalContext';
-import {onLogout} from '../../business/AuthBusiness';
+import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const DrawerContent = props => (
   <View style={{flex: 1}}>
     <DrawerContentScrollView {...props}>
       <ImageBackground
-        source={require('../../assets/images/menu-bg.jpeg')}
+        source={require('~/assets/images/menu-bg.jpeg')}
         style={{padding: 20}}>
         <View>
           <Image
             source={
               {uri: props.global.avatar} ||
-              require('../../assets/images/user.png')
+              require('~/assets/images/user.png')
             }
             style={{
               height: 80,
@@ -58,29 +57,6 @@ const DrawerContent = props => (
         <DrawerItemList {...props} />
       </View>
     </DrawerContentScrollView>
-    <View
-      style={{
-        padding: 20,
-        borderTopWidth: 1,
-        borderTopColor: '#ccc',
-      }}>
-      <TouchableOpacity
-        onPress={() => {
-          onLogout(props.global);
-        }}>
-        <View style={styles.drawer_item}>
-          <View style={styles.icon_wrapper}>
-            <FontAwesome5
-              name="sign-out-alt"
-              style={styles.icon}
-              size={16}
-              color={'#000'}
-            />
-          </View>
-          <Text style={{...styles.drawer_txt, color: '#000'}}>Log out</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
   </View>
 );
 

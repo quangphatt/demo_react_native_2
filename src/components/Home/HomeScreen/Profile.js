@@ -7,15 +7,14 @@ import {
   ImageBackground,
   StyleSheet,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {withGlobalContext} from '../../../provider/GlobalContext';
+import {withGlobalContext} from '~/provider/GlobalContext';
 import {
   onLogout,
   onChangeCompany,
   onChangeLanguage,
-} from '../../../business/AuthBusiness';
+} from '~/business/AuthBusiness';
 
 const langList = [
   {
@@ -23,7 +22,7 @@ const langList = [
     label: 'Tiếng Việt',
     icon: () => (
       <Image
-        source={require('../../../assets/images/vie_icon.png')}
+        source={require('~/assets/images/vie_icon.png')}
         style={styles.dropdown_icon}
       />
     ),
@@ -33,7 +32,7 @@ const langList = [
     label: 'English',
     icon: () => (
       <Image
-        source={require('../../../assets/images/eng_icon.png')}
+        source={require('~/assets/images/eng_icon.png')}
         style={styles.dropdown_icon}
       />
     ),
@@ -66,16 +65,52 @@ class Profile extends Component {
     });
   }
 
+  openDrawerNavigation = () => {
+    this.props.navigation.openDrawer();
+  };
+
+  onChangeLanguage = newLang => {
+    onChangeLanguage(this.props.global, newLang());
+  };
+
+  onChangeCompany = newCompany => {
+    onChangeCompany(this.props.global, newCompany());
+  };
+
+  itemCompany = this.props.global.allowedCompany.map(item => ({
+    value: item[0],
+    label: item[1],
+    icon: () => (
+      <Image
+        source={
+          {
+            uri:
+              'https://uat.xboss.com/web/image/res.company/' +
+              item[0] +
+              '/logo/100x100',
+          } || require('~/assets/images/user.png')
+        }
+        style={styles.dropdown_icon}
+      />
+    ),
+  }));
+
+  languageValue = langList.find(item => item.value === this.props.global.lang)
+    .value;
+
+  onLogout = () => {
+    onLogout(this.props.global);
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground
-          source={require('../../../assets/images/bg_profile.png')}
+          source={require('~/assets/images/bg_profile.png')}
           style={{width: '100%'}}>
           <View style={styles.header}>
             <View style={styles.header_btn}>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.openDrawer()}>
+              <TouchableOpacity onPress={this.openDrawerNavigation}>
                 <FontAwesome5 color="#fff" size={20} name={'arrow-left'} />
               </TouchableOpacity>
               <TouchableOpacity>
@@ -88,7 +123,7 @@ class Profile extends Component {
                   style={styles.avt}
                   source={
                     {uri: this.props.global.avatar} ||
-                    require('../../../assets/images/user.png')
+                    require('~/assets/images/user.png')
                   }
                 />
               </View>
@@ -104,29 +139,11 @@ class Profile extends Component {
 
         <View style={styles.dropdown_wrapper}>
           <DropDownPicker
-            items={this.props.global.allowedCompany.map(item => ({
-              value: item[0],
-              label: item[1],
-              icon: () => (
-                <Image
-                  source={
-                    {
-                      uri:
-                        'https://uat.xboss.com/web/image/res.company/' +
-                        item[0] +
-                        '/logo/100x100',
-                    } || require('../../../assets/images/user.png')
-                  }
-                  style={styles.dropdown_icon}
-                />
-              ),
-            }))}
+            items={this.itemCompany}
             value={this.props.global.currentCompany[0]}
             open={this.state.openCompany}
             setOpen={this.setOpenCompany}
-            setValue={newCompany => {
-              onChangeCompany(this.props.global, newCompany());
-            }}
+            setValue={this.onChangeCompany}
             style={styles.dropDownPicker}
             dropDownContainerStyle={styles.dropDownPicker_list}
             zIndex={3000}
@@ -136,14 +153,10 @@ class Profile extends Component {
           />
           <DropDownPicker
             items={langList}
-            value={
-              langList.find(item => item.value === this.props.global.lang).value
-            }
+            value={this.languageValue}
             open={this.state.openLanguage}
             setOpen={this.setOpenLanguage}
-            setValue={newLang => {
-              onChangeLanguage(this.props.global, newLang());
-            }}
+            setValue={this.onChangeLanguage}
             style={styles.dropDownPicker}
             dropDownContainerStyle={styles.dropDownPicker_list}
             zIndex={2000}
@@ -155,7 +168,7 @@ class Profile extends Component {
         <View>
           <TouchableOpacity
             style={styles.logout_wrapper}
-            onPress={() => onLogout(this.props.global)}>
+            onPress={this.onLogout}>
             <View style={styles.logout_icon_wrapper}>
               <FontAwesome5
                 name="power-off"
@@ -179,7 +192,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    height: 240,
+    height: 180,
   },
   header_btn: {
     flexDirection: 'row',

@@ -1,7 +1,7 @@
-import Service from '../service';
-import {getAllProjectURL, getTaskURL} from '../service/configURL';
+import Service from '~/service';
+import {getAllProjectURL, getTaskURL} from '~/service/configURL';
 import axios from 'axios';
-import host from '../service/host';
+import host from '~/service/host';
 
 class ProjectManageBusiness extends Service {
   getProjectStatus = (uid, lang) => {
@@ -64,9 +64,6 @@ class ProjectManageBusiness extends Service {
             lang: lang,
             tz: 'Asia/Ho_Chi_Minh',
             uid: uid,
-            params: {
-              model: 'project.project',
-            },
           },
         },
         method: 'write',
@@ -120,11 +117,34 @@ class ProjectManageBusiness extends Service {
           'user_id',
           'kanban_state_label',
         ],
-        limit: 80,
+        limit: 10,
         model: 'project.task',
         sort: '',
       };
       this.post(params, getTaskURL).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskPriority = (uid, lang, task_id, newPriority) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            priority: newPriority.toString(),
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: 'Asia/Ho_Chi_Minh',
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
     });
   };
 }
@@ -199,6 +219,24 @@ export const getAllTask = async (uid, lang, project_id) => {
       }
     }
     return allTask;
+  }
+};
+
+export const onChangeTaskPriority = async (
+  uid,
+  lang,
+  project_id,
+  task_id,
+  newPriority,
+) => {
+  let result = await projectManageBusiness.changeTaskPriority(
+    uid,
+    lang,
+    task_id,
+    newPriority,
+  );
+  if (result.status === 'success') {
+    return await getAllTask(uid, lang, project_id);
   }
 };
 

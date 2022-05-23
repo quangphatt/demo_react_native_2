@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import BottomNavigation from '../../../Navigation/BottomNavigation/BottomNavigation';
-
-// TODO: Gom những gì thuộc Navigation thành 1 Folder riêng, không nên viết chung với Component
+import BottomNavigation from '~/Navigation/BottomNavigation/BottomNavigation';
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -15,7 +13,5 @@ class HomeScreen extends Component {
     );
   }
 }
-
-
 
 export default HomeScreen;
