@@ -218,9 +218,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
   },
-  dropdown_wrapper: {
-    marginTop: 20,
-  },
+  dropdown_wrapper: {},
   dropdown_icon: {
     width: 24,
     height: 24,

@@ -14,10 +14,8 @@ import {
 import {withGlobalContext} from '~/provider/GlobalContext';
 import DrawerContent from './DrawerContent';
 
-import HomeScreen from '~/components/Home/HomeScreen/HomeScreen';
-import AllProject from '~/components/Home/HomeScreen/Project/AllProject';
-import Setting from '~/components/Home/Setting';
-import About from '~/components/Home/About';
+import HomeScreen from '~/components/Home/HomeScreen';
+import AllProject from '~/components/Home/Project/AllProject';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Drawer = createDrawerNavigator();

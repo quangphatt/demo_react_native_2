@@ -9,11 +9,11 @@ import {
 } from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
-import TodoList from '~/components/Home/HomeScreen/TodoList';
-import Activity from '~/components/Home/HomeScreen/Activity';
+import TodoList from '~/components/Home/TodoList';
+import Activity from '~/components/Home/Activity';
 import ProjectNavigation from '../ProjectNavigation/ProjectNavigation';
-import Bookmark from '~/components/Home/HomeScreen/Bookmark';
-import Profile from '~/components/Home/HomeScreen/Profile';
+import Bookmark from '~/components/Home/Bookmark';
+import Profile from '~/components/Home/Profile';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();
