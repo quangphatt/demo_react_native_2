@@ -172,7 +172,7 @@ class Project extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#e9ecf2',
+    backgroundColor: '#f9f9f9',
     paddingBottom: 120,
   },
   header: {
@@ -201,6 +201,8 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     marginBottom: 0,
+    borderColor: '#ced4da',
+    borderWidth: 1,
   },
   stage_header: {
     flexDirection: 'row',

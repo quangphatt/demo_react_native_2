@@ -161,6 +161,7 @@ export const getAllProject = async global => {
       status: item.project_status[0],
       status_name: item.project_status[1],
       count: item.project_status_count,
+      fold: item.__fold,
       projects: [],
     }));
     global.setAllProject(arrres);

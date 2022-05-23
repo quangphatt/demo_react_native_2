@@ -37,7 +37,7 @@ class AllProject extends Component {
 
   openDrawerNavigation = () => this.props.navigation.openDrawer();
 
-  onChangeProjectIsFavorite = () =>
+  onChangeProjectIsFavorite = itemProject =>
     onChangeProjectIsFavorite(
       this.props.global,
       itemProject.id,
@@ -57,6 +57,13 @@ class AllProject extends Component {
     });
   };
 
+  setFold = (item, value) => {
+    item.fold = value;
+    let res = this.props.global.allProject;
+    res[res.findIndex(it => it.status === item.status)] = item;
+    this.props.global.setAllProject(res);
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -70,72 +77,92 @@ class AllProject extends Component {
               name={'align-left'}
             />
           </TouchableOpacity>
-
           <Text style={styles.header_text}>All Projects</Text>
         </View>
-        <View>
+        <View style={{flex:1}}>
           <ScrollView horizontal={true}>
-            {this.props.global.allProject.map(item => (
-              <View style={styles.project_group} key={item.status}>
-                <View style={styles.project_group_header}>
-                  <Text style={styles.project_type}>
-                    {item.status_name} ({item.count})
-                  </Text>
-                  <TouchableOpacity>
-                    <FontAwesome5
-                      size={20}
-                      color={'#261d1d'}
-                      name={'ellipsis-v'}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView>
-                  {item.projects.map(itemProject => (
-                    <View style={styles.project} key={itemProject.id}>
-                      <View
-                        style={{
-                          ...styles.project_color,
-                          backgroundColor: itemProject.color
-                            ? projectColor[itemProject.color]
-                            : '#fff',
-                        }}></View>
-                      <View style={styles.project_content}>
-                        <View style={styles.project_header}>
-                          <TouchableOpacity
-                            onPress={this.onChangeProjectIsFavorite}>
-                            {itemProject.is_favorite ? (
-                              <AntDesign
-                                size={20}
-                                color={'#ffdd00'}
-                                name={'star'}
-                              />
-                            ) : (
-                              <AntDesign
-                                size={20}
-                                color={'#848a6d'}
-                                name={'staro'}
-                              />
-                            )}
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            onPress={()=>this.loadProjectTask(itemProject)}>
-                            <Text style={styles.project_name}>
-                              {itemProject.name}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        <Text style={styles.project_username}>
-                          {itemProject.user_id[1]}
-                        </Text>
-                        <Text style={styles.project_task_count}>
-                          {itemProject.task_count} Tasks
+            {this.props.global.allProject.map(item =>
+              item.fold ? (
+                <View style={styles.project_group_fold} key={item.status}>
+                  <TouchableOpacity onPress={() => this.setFold(item, false)}>
+                    <View style={styles.project_group_header_fold}>
+                      <FontAwesome5
+                        size={20}
+                        color={'#a1a1a1'}
+                        name={'arrows-alt-h'}
+                      />
+                      <View style={styles.project_type_fold_wrapper}>
+                        <Text style={styles.project_type_fold}>
+                          {item.status_name} ({item.count})
                         </Text>
                       </View>
                     </View>
-                  ))}
-                </ScrollView>
-              </View>
-            ))}
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.project_group} key={item.status}>
+                  <View style={styles.project_group_header}>
+                    <Text style={styles.project_type}>
+                      {item.status_name} ({item.count})
+                    </Text>
+                    <TouchableOpacity onPress={() => this.setFold(item, true)}>
+                      <FontAwesome5
+                        size={20}
+                        color={'#261d1d'}
+                        name={'ellipsis-v'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView>
+                    {item.projects.map(itemProject => (
+                      <View style={styles.project} key={itemProject.id}>
+                        <View
+                          style={{
+                            ...styles.project_color,
+                            backgroundColor: itemProject.color
+                              ? projectColor[itemProject.color]
+                              : '#fff',
+                          }}></View>
+                        <View style={styles.project_content}>
+                          <View style={styles.project_header}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                this.onChangeProjectIsFavorite(itemProject)
+                              }>
+                              {itemProject.is_favorite ? (
+                                <AntDesign
+                                  size={20}
+                                  color={'#ffdd00'}
+                                  name={'star'}
+                                />
+                              ) : (
+                                <AntDesign
+                                  size={20}
+                                  color={'#848a6d'}
+                                  name={'staro'}
+                                />
+                              )}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() => this.loadProjectTask(itemProject)}>
+                              <Text style={styles.project_name}>
+                                {itemProject.name}
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                          <Text style={styles.project_username}>
+                            {itemProject.user_id[1]}
+                          </Text>
+                          <Text style={styles.project_task_count}>
+                            {itemProject.task_count} Tasks
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              ),
+            )}
           </ScrollView>
         </View>
       </View>
@@ -145,8 +172,9 @@ class AllProject extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#e9ecf2',
-    paddingBottom: 110,
+    backgroundColor: '#f9f9f9',
+    // paddingBottom: 110,
+    height: '100%',
   },
   header: {
     flexDirection: 'row',
@@ -173,17 +201,44 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 10,
     borderRadius: 10,
+    borderColor: '#ced4da',
+    borderWidth: 1,
     marginBottom: 0,
     height: '100%',
+  },
+  project_group_fold: {
+    width: 60,
+    backgroundColor: '#ececec',
+    margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 0,
+    // height: '100%',
   },
   project_group_header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 5,
   },
+  project_group_header_fold: {
+    alignItems: 'center',
+  },
   project_type: {
     color: '#4848db',
     fontSize: 16,
+  },
+  project_type_fold_wrapper: {
+    marginTop: 10,
+    height: 200,
+    width: 40,
+  },
+  project_type_fold: {
+    color: '#4848db',
+    padding: 7,
+    fontSize: 16,
+    transform: [{rotate: '90deg'}, {translateX: 80}, {translateY: 80}],
+    height: 40,
+    width: 200,
   },
   project: {
     borderRadius: 10,
