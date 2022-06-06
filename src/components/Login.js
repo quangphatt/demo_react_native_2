@@ -11,7 +11,7 @@ import {
 import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-import {onLogin} from '~/business/AuthBusiness';
+import authBusiness from '~/business/AuthBusiness';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').witdh;
@@ -44,8 +44,21 @@ class Login extends Component {
     });
   };
 
-  onLogin = () => {
-    onLogin(this.props.global, this.state.username, this.state.password);
+  onLogin = async () => {
+    let loginInfo = await authBusiness.login(
+      this.state.username,
+      this.state.password,
+    );
+    if (loginInfo.status === 'success') {
+      let userInfo = await authBusiness.checkSession();
+      if (userInfo.status) {
+        this.props.global.setLogin(true);
+      } else {
+        // If Get Info Fail
+      }
+    } else {
+      // If login fail
+    }
   };
 
   render() {

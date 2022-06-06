@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {userInfo} from '~/utils/config';
+import {avatarURL} from '~/service/configURL';
 
 const DrawerContent = props => (
   <View style={{flex: 1}}>
@@ -25,7 +27,7 @@ const DrawerContent = props => (
         <View>
           <Image
             source={
-              {uri: props.global.avatar} ||
+              {uri: avatarURL + userInfo.uid} ||
               require('~/assets/images/user.png')
             }
             style={{
@@ -41,7 +43,7 @@ const DrawerContent = props => (
               fontSize: 20,
               marginBottom: 5,
             }}>
-            {props.global.name}
+            {userInfo.name}
           </Text>
           <Text
             style={{
@@ -49,7 +51,7 @@ const DrawerContent = props => (
               color: '#fff',
               marginRight: 5,
             }}>
-            {props.global.username}
+            {userInfo.username}
           </Text>
         </View>
       </ImageBackground>

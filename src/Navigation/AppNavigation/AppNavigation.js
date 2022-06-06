@@ -3,6 +3,7 @@ import {View, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import DrawerNavigation from '../DrawerNavigation/DrawerNavigation';
+import BottomNavigation from '../BottomNavigation/BottomNavigation';
 import Login from '~/components/Login';
 import {withGlobalContext} from '~/provider/GlobalContext';
 

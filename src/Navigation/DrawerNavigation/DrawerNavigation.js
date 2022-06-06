@@ -16,6 +16,7 @@ import DrawerContent from './DrawerContent';
 
 import HomeScreen from '~/components/Home/HomeScreen';
 import AllProject from '~/components/Home/Project/AllProject';
+import AllTask from '~/components/Home/Project/AllTask';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Drawer = createDrawerNavigator();
@@ -29,7 +30,7 @@ class DrawerNavigation extends Component {
   render() {
     return (
       <Drawer.Navigator
-        initialRouteName="My Home"
+        initialRouteName="Projects"
         screenOptions={{
           headerShown: false,
           drawerActiveBackgroundColor: '#aa18ea',
@@ -51,7 +52,27 @@ class DrawerNavigation extends Component {
                     color={color}
                   />
                 </View>
-                <Text style={{color: color, ...styles.drawer_txt}}>Home</Text>
+                <Text style={{color: color, ...styles.drawer_txt}}>Projects</Text>
+              </View>
+            ),
+          }}
+        />    
+        <Drawer.Screen
+          name="All Task"
+          component={AllTask}
+          style={styles.drawer_screen}
+          options={{
+            drawerLabel: ({color}) => (
+              <View style={styles.drawer_item}>
+                <View style={styles.icon_wrapper}>
+                  <FontAwesome5
+                    name="home"
+                    style={styles.icon}
+                    size={16}
+                    color={color}
+                  />
+                </View>
+                <Text style={{color: color, ...styles.drawer_txt}}>All Tasks</Text>
               </View>
             ),
           }}

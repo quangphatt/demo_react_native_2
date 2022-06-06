@@ -9,10 +9,9 @@ import {
 import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {
-  onChangeProjectIsFavorite,
-  getAllTask,
-} from '~/business/ProjectManageBusiness';
+import projectManageBusiness from '~/business/ProjectManageBusiness';
+
+import {userInfo} from '~/utils/config';
 
 const projectColor = {
   0: '#fff',
@@ -32,36 +31,91 @@ const projectColor = {
 class AllProject extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      allProject: [],
+    };
   }
+
+  componentDidMount = async () => {
+    //Load All Project
+    let arrres = [];
+    let result = await projectManageBusiness.getProjectStatus(
+      userInfo.uid,
+      userInfo.lang,
+    );
+    if (result.status === 'success') {
+      arrres = result.data.map(item => ({
+        status: item.project_status[0],
+        status_name: item.project_status[1],
+        count: item.project_status_count,
+        fold: item.__fold,
+        projects: [],
+      }));
+      let res = await projectManageBusiness.getAllProject(
+        userInfo.uid,
+        userInfo.lang,
+      );
+      if (res.status === 'success') {
+        res.data.records.forEach(itemProject => {
+          for (let i = 0; i < arrres.length; i++) {
+            if (itemProject.project_status[0] === arrres[i].status) {
+              arrres[i].projects.push(itemProject);
+            }
+          }
+        });
+      }
+    }
+
+    this.setState({
+      allProject: arrres,
+    });
+  };
 
   openDrawerNavigation = () => this.props.navigation.openDrawer();
 
-  onChangeProjectIsFavorite = itemProject =>
-    onChangeProjectIsFavorite(
-      this.props.global,
-      itemProject.id,
-      !itemProject.is_favorite,
+  onChangeProjectIsFavorite = async (
+    project_status,
+    project_id,
+    is_favorite,
+  ) => {
+    let result = await projectManageBusiness.changeProjectIsFavorite(
+      project_id,
+      is_favorite,
+      userInfo.uid,
+      userInfo.lang,
     );
+    if (result.status === 'success') {
+      let res = this.state.allProject;
+
+      let project_status_index = res.findIndex(
+        item => item.status === project_status,
+      );
+
+      let project_index = res[project_status_index].projects.findIndex(
+        item => item.id === project_id,
+      );
+
+      res[project_status_index].projects[project_index].is_favorite =
+        is_favorite;
+
+      this.setState({
+        allProject: res,
+      });
+    }
+  };
 
   loadProjectTask = async itemProject => {
-    let allTask = await getAllTask(
-      this.props.global.uid,
-      this.props.global.lang,
-      itemProject.id,
-    );
     this.props.navigation.navigate('ProjectScreen', {
       project_id: itemProject.id,
       project_name: itemProject.name,
-      allTask: allTask,
     });
   };
 
   setFold = (item, value) => {
     item.fold = value;
-    let res = this.props.global.allProject;
+    let res = this.state.allProject;
     res[res.findIndex(it => it.status === item.status)] = item;
-    this.props.global.setAllProject(res);
+    this.setState({allProject: res});
   };
 
   render() {
@@ -79,9 +133,9 @@ class AllProject extends Component {
           </TouchableOpacity>
           <Text style={styles.header_text}>All Projects</Text>
         </View>
-        <View style={{flex:1}}>
+        <View style={{flex: 1}}>
           <ScrollView horizontal={true}>
-            {this.props.global.allProject.map(item =>
+            {this.state.allProject.map(item =>
               item.fold ? (
                 <View style={styles.project_group_fold} key={item.status}>
                   <TouchableOpacity onPress={() => this.setFold(item, false)}>
@@ -105,7 +159,9 @@ class AllProject extends Component {
                     <Text style={styles.project_type}>
                       {item.status_name} ({item.count})
                     </Text>
-                    <TouchableOpacity onPress={() => this.setFold(item, true)}>
+                    <TouchableOpacity
+                      onPress={() => this.setFold(item, true)}
+                      style={{width: 30, alignItems: 'flex-end'}}>
                       <FontAwesome5
                         size={20}
                         color={'#261d1d'}
@@ -127,7 +183,11 @@ class AllProject extends Component {
                           <View style={styles.project_header}>
                             <TouchableOpacity
                               onPress={() =>
-                                this.onChangeProjectIsFavorite(itemProject)
+                                this.onChangeProjectIsFavorite(
+                                  item.status,
+                                  itemProject.id,
+                                  !itemProject.is_favorite,
+                                )
                               }>
                               {itemProject.is_favorite ? (
                                 <AntDesign
@@ -173,7 +233,6 @@ class AllProject extends Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#f9f9f9',
-    // paddingBottom: 110,
     height: '100%',
   },
   header: {
@@ -204,7 +263,6 @@ const styles = StyleSheet.create({
     borderColor: '#ced4da',
     borderWidth: 1,
     marginBottom: 0,
-    height: '100%',
   },
   project_group_fold: {
     width: 60,
@@ -213,7 +271,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginBottom: 0,
-    // height: '100%',
   },
   project_group_header: {
     flexDirection: 'row',

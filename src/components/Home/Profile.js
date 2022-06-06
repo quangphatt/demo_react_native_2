@@ -10,11 +10,9 @@ import {
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {withGlobalContext} from '~/provider/GlobalContext';
-import {
-  onLogout,
-  onChangeCompany,
-  onChangeLanguage,
-} from '~/business/AuthBusiness';
+import authBusiness from '~/business/AuthBusiness';
+import {userInfo} from '~/utils/config';
+import {avatarURL} from '~/service/configURL';
 
 const langList = [
   {
@@ -43,12 +41,18 @@ class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      currentCompanyId: userInfo.currentCompanyId,
       openCompany: false,
+      currentLanguage: userInfo.lang,
       openLanguage: false,
     };
 
     this.setOpenCompany = this.setOpenCompany.bind(this);
     this.setOpenLanguage = this.setOpenLanguage.bind(this);
+    this.updateLanguageValue = this.updateLanguageValue.bind(this);
+
+    this.itemCompany = [];
+    this.languageValue = '';
   }
 
   setOpenCompany(openCompany) {
@@ -69,37 +73,83 @@ class Profile extends Component {
     this.props.navigation.openDrawer();
   };
 
-  onChangeLanguage = newLang => {
-    onChangeLanguage(this.props.global, newLang());
+  onChangeLanguage = async newLang => {
+    let result = await authBusiness.changeLang(userInfo.uid, newLang());
+    if (result.status === 'success') {
+      let getInfo = await authBusiness.checkSession();
+      if (getInfo.status) {
+        // If Get Info Success
+        this.setState({
+          currentLanguage: userInfo.lang,
+        });
+        this.updateLanguageValue();
+      } else {
+        // If Get Info Fail
+      }
+    }
   };
 
-  onChangeCompany = newCompany => {
-    onChangeCompany(this.props.global, newCompany());
+  onChangeCompany = async newCompany => {
+    let result = await authBusiness.changeCompany(userInfo.uid, newCompany());
+    if (result.status === 'success') {
+      let getInfo = await authBusiness.checkSession();
+      if (getInfo.status) {
+        // If Get Info Success
+        this.setState({
+          currentCompanyId: userInfo.currentCompanyId,
+        });
+      } else {
+        // If Get Info Fail
+      }
+    }
   };
 
-  itemCompany = this.props.global.allowedCompany.map(item => ({
-    value: item[0],
-    label: item[1],
-    icon: () => (
-      <Image
-        source={
-          {
-            uri:
-              'https://uat.xboss.com/web/image/res.company/' +
-              item[0] +
-              '/logo/100x100',
-          } || require('~/assets/images/user.png')
-        }
-        style={styles.dropdown_icon}
-      />
-    ),
-  }));
+  componentDidMount = () => {
+    this.itemCompany = userInfo.allowedCompany.map(item => ({
+      value: item[0],
+      label: item[1],
+      icon: () => (
+        <Image
+          source={
+            {
+              uri:
+                'https://uat.xboss.com/web/image/res.company/' +
+                item[0] +
+                '/logo/100x100',
+            } || require('~/assets/images/user.png')
+          }
+          style={styles.dropdown_icon}
+        />
+      ),
+    }));
 
-  languageValue = langList.find(item => item.value === this.props.global.lang)
-    .value;
+    this.updateLanguageValue();
+  };
 
-  onLogout = () => {
-    onLogout(this.props.global);
+  updateLanguageValue = () => {
+    this.languageValue = langList.find(
+      item => item.value === userInfo.lang,
+    ).value;
+  };
+
+  // languageValue = langList.find(
+  //   item => item.value === this.state.currentLanguage,
+  // ).value;
+
+  onLogout = async () => {
+    let result = await authBusiness.logout();
+    if (result.status === 'success') {
+      this.props.global.setLogin(false);
+
+      //clear userInfo
+      userInfo.uid = 0;
+      userInfo.name = '';
+      userInfo.username = '';
+      userInfo.lang = '';
+      userInfo.currentCompanyName = '';
+      userInfo.currentCompanyId = 0;
+      userInfo.allowedCompany = [];
+    }
   };
 
   render() {
@@ -122,16 +172,14 @@ class Profile extends Component {
                 <Image
                   style={styles.avt}
                   source={
-                    {uri: this.props.global.avatar} ||
+                    {uri: avatarURL + userInfo.uid} ||
                     require('~/assets/images/user.png')
                   }
                 />
               </View>
               <View>
-                <Text style={styles.name}>{this.props.global.name}</Text>
-                <Text style={styles.username}>
-                  {this.props.global.username}
-                </Text>
+                <Text style={styles.name}>{userInfo.name}</Text>
+                <Text style={styles.username}>{userInfo.username}</Text>
               </View>
             </View>
           </View>
@@ -140,7 +188,7 @@ class Profile extends Component {
         <View style={styles.dropdown_wrapper}>
           <DropDownPicker
             items={this.itemCompany}
-            value={this.props.global.currentCompany[0]}
+            value={this.state.currentCompanyId}
             open={this.state.openCompany}
             setOpen={this.setOpenCompany}
             setValue={this.onChangeCompany}

@@ -2,7 +2,8 @@ import Service from '~/service';
 import {loginURL, logoutURL, userInfoURL} from '~/service/configURL';
 import axios from 'axios';
 import host from '~/service/host';
-import {getAllProject} from './ProjectManageBusiness';
+import {getAllProject, getAllTask} from './ProjectManageBusiness';
+import {userInfo} from '~/utils/config';
 
 class AuthBusiness extends Service {
   login = (username, password) => {
@@ -28,7 +29,7 @@ class AuthBusiness extends Service {
         } else {
           res({
             status: 'error',
-            data: '', // Tu bat ket qua
+            data: '',
           });
         }
       })
@@ -37,14 +38,55 @@ class AuthBusiness extends Service {
     });
   };
 
-  getUserInfomation = () => {
-    return new Promise((resolve, reject) => {
-      this.post({}, userInfoURL).then(resolve).catch(reject);
+  checkSession = () => {
+    return new Promise(async (resolve, reject) => {
+      let result = await this.post({}, userInfoURL);
+      if (result.status === 'success') {
+        this.setUserInfo(result.data)
+        resolve({status: true});
+      } else {
+        resolve({status: false});
+      }
     });
   };
 
+  setUserInfo = data => {
+    let user = data;
+    let currentCompany = user.user_companies.current_company;
+
+    userInfo.uid = user.uid;
+    userInfo.name = user.name;
+    userInfo.username = user.username;
+    userInfo.lang = user.user_context.lang;
+    userInfo.currentCompanyName = currentCompany?.[1] ?? '';
+    userInfo.currentCompanyId = currentCompany?.[0] ?? 0;
+    userInfo.allowedCompany = user.user_companies.allowed_companies;
+  };
+
+  // getUserInfomation = () => {
+  //   return new Promise(async (resolve, reject) => {
+  //     let result = await this.checkSession();
+  //     if (result.status === 'true') {
+  //       let user = result.data;
+  //       let currentCompany = user.user_companies.current_company;
+
+  //       userInfo.uid = user.uid;
+  //       userInfo.name = user.name;
+  //       userInfo.username = user.username;
+  //       userInfo.lang = user.user_context.lang;
+  //       userInfo.currentCompanyName = currentCompany?.[1] ?? '';
+  //       userInfo.currentCompanyId = currentCompany?.[0] ?? 0;
+  //       userInfo.allowedCompany = user.user_companies.allowed_companies;
+
+  //       resolve({status: 'success'});
+  //     } else {
+  //       resolve({status: 'fail'});
+  //     }
+  //   });
+  // };
+
   changeLang = (uid, newLang) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let params = {
         args: [uid, {lang: newLang}],
         model: 'res.users',
@@ -69,43 +111,5 @@ class AuthBusiness extends Service {
 }
 
 const authBusiness = new AuthBusiness();
-
-export const onLogin = async (global, username, password) => {
-  let result = await authBusiness.login(username, password);
-  if (result.status === 'success') {
-    await getUserInfo(global);
-    await getAllProject(global);
-    global.setLogin(true);
-  }
-};
-
-export const onLogout = async global => {
-  let result = await authBusiness.logout();
-  if (result.status === 'success') {
-    global.setLogin(false);
-    global.clearUserInfo();
-  }
-};
-
-export const getUserInfo = async global => {
-  let result = await authBusiness.getUserInfomation();
-  if (result.status === 'success') {
-    global.setUserInfo(result.data);
-  }
-};
-
-export const onChangeCompany = async (global, newCompany) => {
-  let result = await authBusiness.changeCompany(global.uid, newCompany);
-  if (result.status === 'success') {
-    await getUserInfo(global);
-  }
-};
-
-export const onChangeLanguage = async (global, newLanguage) => {
-  let result = await authBusiness.changeLang(global.uid, newLanguage);
-  if (result.status === 'success') {
-    await getUserInfo(global);
-  }
-};
 
 export default authBusiness;
