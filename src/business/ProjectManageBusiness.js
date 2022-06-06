@@ -56,6 +56,10 @@ class ProjectManageBusiness extends Service {
     });
   };
 
+  getProjects=()=>{
+    
+  }
+
   changeProjectIsFavorite = (project_id, is_favorite, uid, lang) => {
     return new Promise((resolve, reject) => {
       let params = {
@@ -73,6 +77,10 @@ class ProjectManageBusiness extends Service {
       this.post(params).then(resolve).catch(reject);
     });
   };
+
+  getTasks=()=>{
+    
+  }
 
   getTaskStage = (uid, lang, project_id) => {
     return new Promise((resolve, reject) => {

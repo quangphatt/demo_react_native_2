@@ -23,7 +23,7 @@ class AppNavigation extends Component {
             headerShown: false,
           }}>
           {this.props.global.isLogin ? (
-            <Stack.Screen name="Home" component={DrawerNavigation} />
+            <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} />
           ) : (
             <Stack.Screen name="Login" component={Login} />
           )}

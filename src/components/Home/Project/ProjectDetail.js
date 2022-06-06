@@ -30,21 +30,25 @@ const taskColor = {
   11: '#9365b8',
 };
 
-class AllTask extends Component {
+class Project extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      allTasks: [],
+      project_id: this.props.route.params.project_id,
+      project_name: this.props.route.params.project_name,
+      project_tasks: [],
     };
   }
 
   componentDidMount = async () => {
-    let result = await projectManageBusiness.getAllTaskStage(
+    // Load Tasks
+    let result = await projectManageBusiness.getTaskStage(
       userInfo.uid,
       userInfo.lang,
+      this.state.project_id,
     );
     if (result.status === 'success') {
-      let allTask = result.data.map(item => ({
+      let project_tasks = result.data.map(item => ({
         stage_id: item.stage_id[0],
         stage_name: item.stage_id[1],
         stage_count: item.stage_id_count,
@@ -52,19 +56,22 @@ class AllTask extends Component {
         tasks: [],
       }));
 
-      for (let i = 0; i < allTask.length; i++) {
-        if (!allTask[i].fold) {
-          allTask[i].tasks = await this.getAllTaskByStage(allTask[i].stage_id);
+      for (let i = 0; i < project_tasks.length; i++) {
+        if (!project_tasks[i].fold) {
+          project_tasks[i].tasks = await this.getTaskByStage(
+            project_tasks[i].stage_id,
+          );
         }
       }
-      this.setState({allTasks: allTask});
+      this.setState({project_tasks: project_tasks});
     }
   };
 
-  getAllTaskByStage = async stage_id => {
-    let res = await projectManageBusiness.getAllTaskByStage(
+  getTaskByStage = async stage_id => {
+    let res = await projectManageBusiness.getTaskByStage(
       userInfo.uid,
       userInfo.lang,
+      this.state.project_id,
       stage_id,
     );
     if (res.status === 'success') {
@@ -74,8 +81,15 @@ class AllTask extends Component {
 
   openDrawerNavigation = () => this.props.navigation.openDrawer();
 
+  backProjectScreen = () => this.props.navigation.navigate('MenuNavigation', {
+    screen: 'ProjectNavigation',
+    params: {
+      screen: 'Project',
+    },
+  });
+
   loadTaskScreen = itemTask =>
-    this.props.navigation.navigate('Task', {
+    this.props.navigation.navigate('TaskDetail', {
       task_id: itemTask.id,
       task_name: itemTask.name,
     });
@@ -88,7 +102,7 @@ class AllTask extends Component {
       newPriority,
     );
     if (result.status === 'success') {
-      let res = this.state.allTasks;
+      let res = this.state.project_tasks;
 
       let stageIndex = res.findIndex(item => item.stage_id === stage_id);
       let taskIndex = res[stageIndex].tasks.findIndex(
@@ -98,26 +112,26 @@ class AllTask extends Component {
       res[stageIndex].tasks[taskIndex].priority = newPriority.toString();
 
       this.setState({
-        allTasks: res,
+        project_tasks: res,
       });
     }
   };
 
   setFold = async (stage_id, value) => {
-    let res = this.state.allTasks;
+    let res = this.state.project_tasks;
     let stage_index = res.findIndex(item => item.stage_id === stage_id);
     res[stage_index].fold = value;
 
     if (!value) {
       if (res[stage_index].tasks.length === 0) {
-        let tasks = await this.getAllTaskByStage(stage_id);
+        let tasks = await this.getTaskByStage(stage_id);
 
         res[stage_index].tasks = tasks;
       }
     }
 
     this.setState({
-      allTasks: res,
+      project_tasks: res,
     });
   };
 
@@ -127,19 +141,19 @@ class AllTask extends Component {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.header_icon_wrapper}
-            onPress={this.openDrawerNavigation}>
+            onPress={this.backProjectScreen}>
             <FontAwesome5
               style={styles.header_icon}
               size={20}
-              name={'align-left'}
+              name={'arrow-left'}
             />
           </TouchableOpacity>
 
-          <Text style={styles.header_text}>All Tasks</Text>
+          <Text style={styles.header_text}>{this.state.project_name}</Text>
         </View>
         <View style={{flex: 1}}>
           <ScrollView horizontal={true}>
-            {this.state.allTasks.map(item =>
+            {this.state.project_tasks.map(item =>
               item.fold ? (
                 <View style={styles.stage_fold} key={item.stage_id}>
                   <TouchableOpacity
@@ -390,4 +404,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withGlobalContext(AllTask);
+export default withGlobalContext(Project);

@@ -6,15 +6,11 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
 import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import authBusiness from '~/business/AuthBusiness';
-
-const screenHeight = Dimensions.get('window').height;
-const screenWidth = Dimensions.get('window').witdh;
 
 class Login extends Component {
   constructor(props) {
@@ -158,7 +154,7 @@ class Login extends Component {
 const styles = StyleSheet.create({
   login_wrapper: {
     backgroundColor: 'white',
-    height: screenHeight,
+    height: '100%',
   },
   logo_wrapper: {
     alignItems: 'center',

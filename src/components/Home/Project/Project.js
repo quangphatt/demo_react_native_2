@@ -5,17 +5,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
 } from 'react-native';
+import {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import StarRating from 'react-native-star-rating';
-import {withGlobalContext} from '~/provider/GlobalContext';
-import {avatarURL, partnerAvatarURL} from '~/service/configURL';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
+
 import {userInfo} from '~/utils/config';
 
-const taskColor = {
+const projectColor = {
   0: '#fff',
   1: '#f06050',
   2: '#f4a460',
@@ -30,104 +28,100 @@ const taskColor = {
   11: '#9365b8',
 };
 
-class Project extends Component {
+class AllProject extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      project_id: this.props.route.params.project_id,
-      project_name: this.props.route.params.project_name,
-      project_tasks: [],
+      allProject: [],
     };
   }
 
   componentDidMount = async () => {
-    // Load Tasks
-    let result = await projectManageBusiness.getTaskStage(
+    //Load All Project
+    let arrres = [];
+    let result = await projectManageBusiness.getProjectStatus(
       userInfo.uid,
       userInfo.lang,
-      this.state.project_id,
     );
     if (result.status === 'success') {
-      let project_tasks = result.data.map(item => ({
-        stage_id: item.stage_id[0],
-        stage_name: item.stage_id[1],
-        stage_count: item.stage_id_count,
+      arrres = result.data.map(item => ({
+        status: item.project_status[0],
+        status_name: item.project_status[1],
+        count: item.project_status_count,
         fold: item.__fold,
-        tasks: [],
+        projects: [],
       }));
-
-      for (let i = 0; i < project_tasks.length; i++) {
-        if (!project_tasks[i].fold) {
-          project_tasks[i].tasks = await this.getTaskByStage(
-            project_tasks[i].stage_id,
-          );
-        }
-      }
-      this.setState({project_tasks: project_tasks});
-    }
-  };
-
-  getTaskByStage = async stage_id => {
-    let res = await projectManageBusiness.getTaskByStage(
-      userInfo.uid,
-      userInfo.lang,
-      this.state.project_id,
-      stage_id,
-    );
-    if (res.status === 'success') {
-      return res.data.records;
-    }
-  };
-
-  openDrawerNavigation = () => this.props.navigation.openDrawer();
-
-  backProjectScreen = () => this.props.navigation.goBack();
-
-  loadTaskScreen = itemTask =>
-    this.props.navigation.navigate('Task', {
-      task_id: itemTask.id,
-      task_name: itemTask.name,
-    });
-
-  onChangeTaskPriority = async (newPriority, stage_id, task_id) => {
-    let result = await projectManageBusiness.changeTaskPriority(
-      userInfo.uid,
-      userInfo.lang,
-      task_id,
-      newPriority,
-    );
-    if (result.status === 'success') {
-      let res = this.state.project_tasks;
-
-      let stageIndex = res.findIndex(item => item.stage_id === stage_id);
-      let taskIndex = res[stageIndex].tasks.findIndex(
-        item => item.id === task_id,
+      let res = await projectManageBusiness.getAllProject(
+        userInfo.uid,
+        userInfo.lang,
       );
-
-      res[stageIndex].tasks[taskIndex].priority = newPriority.toString();
-
-      this.setState({
-        project_tasks: res,
-      });
-    }
-  };
-
-  setFold = async (stage_id, value) => {
-    let res = this.state.project_tasks;
-    let stage_index = res.findIndex(item => item.stage_id === stage_id);
-    res[stage_index].fold = value;
-
-    if (!value) {
-      if (res[stage_index].tasks.length === 0) {
-        let tasks = await this.getTaskByStage(stage_id);
-
-        res[stage_index].tasks = tasks;
+      if (res.status === 'success') {
+        res.data.records.forEach(itemProject => {
+          for (let i = 0; i < arrres.length; i++) {
+            if (itemProject.project_status[0] === arrres[i].status) {
+              arrres[i].projects.push(itemProject);
+            }
+          }
+        });
       }
     }
 
     this.setState({
-      project_tasks: res,
+      allProject: arrres,
     });
+  };
+
+  openDrawerNavigation = () => this.props.navigation.openDrawer();
+
+  onChangeProjectIsFavorite = async (
+    project_status,
+    project_id,
+    is_favorite,
+  ) => {
+    let result = await projectManageBusiness.changeProjectIsFavorite(
+      project_id,
+      is_favorite,
+      userInfo.uid,
+      userInfo.lang,
+    );
+    if (result.status === 'success') {
+      let res = this.state.allProject;
+
+      let project_status_index = res.findIndex(
+        item => item.status === project_status,
+      );
+
+      let project_index = res[project_status_index].projects.findIndex(
+        item => item.id === project_id,
+      );
+
+      res[project_status_index].projects[project_index].is_favorite =
+        is_favorite;
+
+      this.setState({
+        allProject: res,
+      });
+    }
+  };
+
+  loadProjectTask = async itemProject => {
+    this.props.navigation.navigate('MenuNavigation', {
+      screen: 'TaskNavigation',
+      params: {
+        screen: 'ProjectDetail',
+        params: {
+          project_id: itemProject.id,
+          project_name: itemProject.name,
+        },
+      },
+    });
+  };
+
+  setFold = (item, value) => {
+    item.fold = value;
+    let res = this.state.allProject;
+    res[res.findIndex(it => it.status === item.status)] = item;
+    this.setState({allProject: res});
   };
 
   render() {
@@ -136,45 +130,43 @@ class Project extends Component {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.header_icon_wrapper}
-            onPress={this.backProjectScreen}>
+            onPress={this.openDrawerNavigation}>
             <FontAwesome5
               style={styles.header_icon}
               size={20}
-              name={'arrow-left'}
+              name={'align-left'}
             />
           </TouchableOpacity>
-
-          <Text style={styles.header_text}>{this.state.project_name}</Text>
+          <Text style={styles.header_text}>All Projects</Text>
         </View>
         <View style={{flex: 1}}>
           <ScrollView horizontal={true}>
-            {this.state.project_tasks.map(item =>
+            {this.state.allProject.map(item =>
               item.fold ? (
-                <View style={styles.stage_fold} key={item.stage_id}>
-                  <TouchableOpacity
-                    onPress={() => this.setFold(item.stage_id, false)}>
-                    <View style={styles.stage_header_fold}>
+                <View style={styles.project_group_fold} key={item.status}>
+                  <TouchableOpacity onPress={() => this.setFold(item, false)}>
+                    <View style={styles.project_group_header_fold}>
                       <FontAwesome5
                         size={20}
                         color={'#a1a1a1'}
                         name={'arrows-alt-h'}
                       />
-                      <View style={styles.stage_name_fold_wrapper}>
-                        <Text style={styles.stage_name_fold}>
-                          {item.stage_name || 'Undefined'} ({item.stage_count})
+                      <View style={styles.project_type_fold_wrapper}>
+                        <Text style={styles.project_type_fold}>
+                          {item.status_name} ({item.count})
                         </Text>
                       </View>
                     </View>
                   </TouchableOpacity>
                 </View>
               ) : (
-                <View style={styles.stage} key={item.stage_id}>
-                  <View style={styles.stage_header}>
-                    <Text style={styles.stage_name}>
-                      {item.stage_name || 'Undefined'} ({item.stage_count})
+                <View style={styles.project_group} key={item.status}>
+                  <View style={styles.project_group_header}>
+                    <Text style={styles.project_type}>
+                      {item.status_name} ({item.count})
                     </Text>
                     <TouchableOpacity
-                      onPress={() => this.setFold(item.stage_id, true)}
+                      onPress={() => this.setFold(item, true)}
                       style={{width: 30, alignItems: 'flex-end'}}>
                       <FontAwesome5
                         size={20}
@@ -184,85 +176,52 @@ class Project extends Component {
                     </TouchableOpacity>
                   </View>
                   <ScrollView>
-                    {item.tasks.map(itemTask => (
-                      <View style={styles.task} key={itemTask.id}>
+                    {item.projects.map(itemProject => (
+                      <View style={styles.project} key={itemProject.id}>
                         <View
                           style={{
-                            ...styles.task_color,
-                            backgroundColor: itemTask.color
-                              ? taskColor[itemTask.color]
+                            ...styles.project_color,
+                            backgroundColor: itemProject.color
+                              ? projectColor[itemProject.color]
                               : '#fff',
                           }}></View>
-                        <View style={styles.task_content}>
-                          <View style={styles.task_header}>
+                        <View style={styles.project_content}>
+                          <View style={styles.project_header}>
                             <TouchableOpacity
-                              onPress={() => this.loadTaskScreen(itemTask)}>
-                              <Text style={styles.task_name}>
-                                {itemTask.name}
+                              onPress={() =>
+                                this.onChangeProjectIsFavorite(
+                                  item.status,
+                                  itemProject.id,
+                                  !itemProject.is_favorite,
+                                )
+                              }>
+                              {itemProject.is_favorite ? (
+                                <AntDesign
+                                  size={20}
+                                  color={'#ffdd00'}
+                                  name={'star'}
+                                />
+                              ) : (
+                                <AntDesign
+                                  size={20}
+                                  color={'#848a6d'}
+                                  name={'staro'}
+                                />
+                              )}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() => this.loadProjectTask(itemProject)}>
+                              <Text style={styles.project_name}>
+                                {itemProject.name}
                               </Text>
                             </TouchableOpacity>
                           </View>
-                          <View style={styles.item_wrapper}>
-                            <Text style={styles.item_label}>Status</Text>
-                            <Text style={styles.task_status}>
-                              {itemTask.kanban_state_label}
-                            </Text>
-                          </View>
-                          <View style={styles.item_wrapper}>
-                            <Text style={styles.item_label}>Assigned</Text>
-                            <View style={styles.user_img_wrapper}>
-                              <Image
-                                style={styles.user_img}
-                                source={
-                                  {
-                                    uri:
-                                      partnerAvatarURL + itemTask.creator_id[0],
-                                  } || require('~/assets/images/user.png')
-                                }
-                              />
-                              <Text
-                                style={{
-                                  color: '#664e4d',
-                                  fontSize: 18,
-                                  marginLeft: 5,
-                                  marginRight: 5,
-                                }}>
-                                >
-                              </Text>
-                              <Image
-                                style={styles.user_img}
-                                source={
-                                  {uri: avatarURL + itemTask.user_id[0]} ||
-                                  require('~/assets/images/user.png')
-                                }
-                              />
-                            </View>
-                          </View>
-                          <View style={styles.item_wrapper}>
-                            <Text style={styles.item_label}>Priority</Text>
-                            <StarRating
-                              disabled={false}
-                              maxStars={3}
-                              rating={parseInt(itemTask.priority)}
-                              starSize={18}
-                              fullStarColor={'#f0c735'}
-                              selectedStar={rating => {
-                                this.onChangeTaskPriority(
-                                  rating,
-                                  item.stage_id,
-                                  itemTask.id,
-                                );
-                              }}
-                            />
-                          </View>
-                          {itemTask.date_deadline && (
-                            <View style={styles.item_wrapper}>
-                              <Text style={styles.item_label}>Deadline</Text>
-                              <Text style={styles.task_deadline}>
-                                {itemTask.date_deadline}
-                              </Text>
-                            </View>
-                          )}
+                          <Text style={styles.project_username}>
+                            {itemProject.user_id[1]}
+                          </Text>
+                          <Text style={styles.project_task_count}>
+                            {itemProject.task_count} Tasks
+                          </Text>
                         </View>
                       </View>
                     ))}
@@ -299,104 +258,89 @@ const styles = StyleSheet.create({
   },
   header_text: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
   },
-  stage: {
+  project_group: {
     width: 360,
     backgroundColor: '#fff',
     padding: 10,
     margin: 10,
     borderRadius: 10,
-    marginBottom: 0,
     borderColor: '#ced4da',
     borderWidth: 1,
+    marginBottom: 0,
   },
-  stage_fold: {
+  project_group_fold: {
     width: 60,
     backgroundColor: '#ececec',
-    padding: 10,
     margin: 10,
+    padding: 10,
     borderRadius: 10,
     marginBottom: 0,
   },
-  stage_header: {
+  project_group_header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 5,
   },
-  stage_header_fold: {
+  project_group_header_fold: {
     alignItems: 'center',
   },
-  stage_name: {
+  project_type: {
     color: '#4848db',
     fontSize: 16,
-    fontWeight: 'bold',
   },
-  stage_name_fold_wrapper: {
+  project_type_fold_wrapper: {
     marginTop: 10,
     height: 200,
     width: 40,
   },
-  stage_name_fold: {
+  project_type_fold: {
     color: '#4848db',
-    fontWeight: 'bold',
     padding: 7,
     fontSize: 16,
     transform: [{rotate: '90deg'}, {translateX: 80}, {translateY: 80}],
     height: 40,
     width: 200,
   },
-  task: {
+  project: {
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#d6d5ce',
     marginTop: 10,
     flexDirection: 'row',
   },
-  task_color: {
+  project_color: {
     width: 6,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
   },
-  task_content: {
+  project_content: {
     padding: 10,
-    width: '100%',
   },
-  task_header: {
+  project_header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 5,
   },
-  task_name: {
+  project_name: {
     color: '#4848db',
-    fontSize: 16,
+    paddingLeft: 10,
+    paddingRight: 15,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  item_wrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-    paddingRight: 10,
+  project_username: {
+    marginLeft: 30,
+    color: '#828076',
+    fontSize: 15,
+    marginBottom: 5,
   },
-  item_label: {
-    color: '#000',
-    fontSize: 13,
-  },
-  user_img_wrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  user_img: {
-    width: 25,
-    height: 25,
-    borderRadius: 15,
-  },
-  task_status: {
-    color: '#000',
-  },
-  task_deadline: {
-    color: '#f00',
+  project_task_count: {
+    marginLeft: 20,
+    color: '#4848db',
+    fontSize: 14,
   },
 });
 
-export default withGlobalContext(Project);
+export default withGlobalContext(AllProject);

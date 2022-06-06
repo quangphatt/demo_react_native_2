@@ -8,10 +8,9 @@ import {
   ImageBackground,
 } from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-
+import MenuNavigation from '../MenuNavigation/MenuNavigation';
 import TodoList from '~/components/Home/TodoList';
 import Activity from '~/components/Home/Activity';
-import ProjectNavigation from '../ProjectNavigation/ProjectNavigation';
 import Bookmark from '~/components/Home/Bookmark';
 import Profile from '~/components/Home/Profile';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -31,7 +30,7 @@ class BottomNavigation extends Component {
           headerShown: false,
           tabBarShowLabel: false,
         }}
-        initialRouteName="Project">
+        initialRouteName="MenuNavigation">
         <Tab.Screen
           name="Todo List"
           component={TodoList}
@@ -77,8 +76,8 @@ class BottomNavigation extends Component {
           }}
         />
         <Tab.Screen
-          name="Project"
-          component={ProjectNavigation}
+          name="MenuNavigation"
+          component={MenuNavigation}
           options={{
             tabBarIcon: ({focused}) => (
               <View style={styles.center_icon_wrapper}>
