@@ -132,10 +132,6 @@ class Profile extends Component {
     ).value;
   };
 
-  // languageValue = langList.find(
-  //   item => item.value === this.state.currentLanguage,
-  // ).value;
-
   onLogout = async () => {
     let result = await authBusiness.logout();
     if (result.status === 'success') {
@@ -146,6 +142,7 @@ class Profile extends Component {
       userInfo.name = '';
       userInfo.username = '';
       userInfo.lang = '';
+      userInfo.tz = '';
       userInfo.currentCompanyName = '';
       userInfo.currentCompanyId = 0;
       userInfo.allowedCompany = [];

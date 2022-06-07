@@ -42,6 +42,7 @@ class AllProject extends Component {
     let result = await projectManageBusiness.getProjectStatus(
       userInfo.uid,
       userInfo.lang,
+      userInfo.tz,
     );
     if (result.status === 'success') {
       arrres = result.data.map(item => ({
@@ -54,6 +55,7 @@ class AllProject extends Component {
       let res = await projectManageBusiness.getAllProject(
         userInfo.uid,
         userInfo.lang,
+        userInfo.tz,
       );
       if (res.status === 'success') {
         res.data.records.forEach(itemProject => {
@@ -83,6 +85,7 @@ class AllProject extends Component {
       is_favorite,
       userInfo.uid,
       userInfo.lang,
+      userInfo.tz,
     );
     if (result.status === 'success') {
       let res = this.state.allProject;

@@ -58,6 +58,7 @@ class AuthBusiness extends Service {
     userInfo.name = user.name;
     userInfo.username = user.username;
     userInfo.lang = user.user_context.lang;
+    userInfo.tz = user.user_context.tz;
     userInfo.currentCompanyName = currentCompany?.[1] ?? '';
     userInfo.currentCompanyId = currentCompany?.[0] ?? 0;
     userInfo.allowedCompany = user.user_companies.allowed_companies;

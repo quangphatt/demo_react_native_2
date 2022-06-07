@@ -5,14 +5,14 @@ import host from '~/service/host';
 import {userInfo} from '~/utils/config';
 
 class ProjectManageBusiness extends Service {
-  getProjectStatus = (uid, lang) => {
+  getProjectStatus = (uid, lang, tz) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [],
         kwargs: {
           context: {
             lang: lang,
-            tz: 'Asia/Ho_Chi_Minh',
+            tz: tz,
             uid: uid,
           },
           domain: [],
@@ -27,12 +27,12 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  getAllProject = (uid, lang) => {
+  getAllProject = (uid, lang, tz) => {
     return new Promise((resolve, reject) => {
       let params = {
         context: {
           lang: lang,
-          tz: 'Asia/Ho_Chi_Minh',
+          tz: tz,
           uid: uid,
           params: {
             model: 'project.project',
@@ -56,14 +56,14 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  changeProjectIsFavorite = (project_id, is_favorite, uid, lang) => {
+  changeProjectIsFavorite = (project_id, is_favorite, uid, lang, tz) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [[project_id], {is_favorite: is_favorite}],
         kwargs: {
           context: {
             lang: lang,
-            tz: 'Asia/Ho_Chi_Minh',
+            tz: tz,
             uid: uid,
           },
         },
@@ -75,14 +75,14 @@ class ProjectManageBusiness extends Service {
   };
 
   // Using domain
-  getStage = (uid, lang, domain) => {
+  getStage = (uid, lang, tz, domain) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [],
         kwargs: {
           context: {
             lang: lang,
-            tz: 'Asia/Ho_Chi_Minh',
+            tz: tz,
             uid: uid,
           },
           domain: domain,
@@ -97,12 +97,12 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  getTasks = (uid, lang, stage_id, domain) => {
+  getTasks = (uid, lang, tz, stage_id, domain) => {
     return new Promise((resolve, reject) => {
       let params = {
         context: {
           lang: lang,
-          tz: 'Asia/Ho_Chi_Minh',
+          tz: tz,
           uid: uid,
         },
         domain: ['&', ['stage_id', '=', stage_id], ...domain],
@@ -123,7 +123,7 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  changeTaskPriority = (uid, lang, task_id, newPriority) => {
+  changeTaskPriority = (uid, lang, tz, task_id, newPriority) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [
@@ -135,7 +135,7 @@ class ProjectManageBusiness extends Service {
         kwargs: {
           context: {
             lang: lang,
-            tz: 'Asia/Ho_Chi_Minh',
+            tz: tz,
             uid: uid,
           },
         },

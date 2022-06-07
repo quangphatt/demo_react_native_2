@@ -14,6 +14,8 @@ import {withGlobalContext} from '~/provider/GlobalContext';
 import {avatarURL, partnerAvatarURL} from '~/service/configURL';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
 import {userInfo} from '~/utils/config';
+import moment from 'moment';
+import 'moment-timezone';
 
 const taskColor = {
   0: '#fff',
@@ -43,6 +45,7 @@ class AllTask extends Component {
     let result = await projectManageBusiness.getStage(
       userInfo.uid,
       userInfo.lang,
+      userInfo.tz,
       this.props.route.params.domain,
     );
     if (result.status === 'success') {
@@ -67,6 +70,7 @@ class AllTask extends Component {
     let res = await projectManageBusiness.getTasks(
       userInfo.uid,
       userInfo.lang,
+      userInfo.tz,
       stage_id,
       this.props.route.params.domain,
     );
@@ -97,6 +101,7 @@ class AllTask extends Component {
     let result = await projectManageBusiness.changeTaskPriority(
       userInfo.uid,
       userInfo.lang,
+      userInfo.tz,
       task_id,
       newPriority,
     );
@@ -281,7 +286,10 @@ class AllTask extends Component {
                                     Deadline
                                   </Text>
                                   <Text style={styles.task_deadline}>
-                                    {itemTask.date_deadline}
+                                    {moment
+                                      .utc(itemTask.date_deadline)
+                                      .tz(userInfo.tz)
+                                      .format('DD/MM/YYYY HH:mm:ss')}
                                   </Text>
                                 </View>
                               )}

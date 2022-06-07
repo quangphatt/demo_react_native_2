@@ -3,6 +3,7 @@ export let userInfo={
     name: '',
     username: '',
     lang: '',
+    tz:'',
     currentCompanyId: 0,
     currentCompanyName: '',
     allowedCompany: [],
