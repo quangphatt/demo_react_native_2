@@ -108,10 +108,11 @@ class AllProject extends Component {
     this.props.navigation.navigate('MenuNavigation', {
       screen: 'TaskNavigation',
       params: {
-        screen: 'ProjectDetail',
+        screen: 'Task',
         params: {
           project_id: itemProject.id,
           project_name: itemProject.name,
+          domain: [['project_id', '=', itemProject.id]],
         },
       },
     });

@@ -45,6 +45,13 @@ class DrawerContent extends Component {
           screen: 'TaskNavigation',
           params: {
             screen: 'Task',
+            params: {
+              domain: [
+                '|',
+                ['user_id', '=', userInfo.uid],
+                ['contributor_ids.id', '=', userInfo.uid],
+              ],
+            },
           },
         });
       },

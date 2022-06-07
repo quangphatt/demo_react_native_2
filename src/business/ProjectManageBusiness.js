@@ -56,10 +56,6 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  getProjects=()=>{
-    
-  }
-
   changeProjectIsFavorite = (project_id, is_favorite, uid, lang) => {
     return new Promise((resolve, reject) => {
       let params = {
@@ -78,11 +74,8 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  getTasks=()=>{
-    
-  }
-
-  getTaskStage = (uid, lang, project_id) => {
+  // Using domain
+  getStage = (uid, lang, domain) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [],
@@ -92,7 +85,7 @@ class ProjectManageBusiness extends Service {
             tz: 'Asia/Ho_Chi_Minh',
             uid: uid,
           },
-          domain: [['project_id', '=', project_id]],
+          domain: domain,
           fields: ['stage_id', 'name'],
           groupby: ['stage_id'],
           orderby: '',
@@ -104,7 +97,7 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  getTaskByStage = (uid, lang, project_id, stage_id) => {
+  getTasks = (uid, lang, stage_id, domain) => {
     return new Promise((resolve, reject) => {
       let params = {
         context: {
@@ -112,11 +105,7 @@ class ProjectManageBusiness extends Service {
           tz: 'Asia/Ho_Chi_Minh',
           uid: uid,
         },
-        domain: [
-          '&',
-          ['stage_id', '=', stage_id],
-          ['project_id', '=', project_id],
-        ],
+        domain: ['&', ['stage_id', '=', stage_id], ...domain],
         fields: [
           'color',
           'priority',
@@ -129,63 +118,6 @@ class ProjectManageBusiness extends Service {
         limit: 10,
         model: 'project.task',
         sort: '',
-      };
-      this.post(params, getTaskURL).then(resolve).catch(reject);
-    });
-  };
-
-  getAllTaskStage = (uid, lang) => {
-    return new Promise((resolve, reject) => {
-      let params = {
-        args: [],
-        kwargs: {
-          context: {
-            lang: lang,
-            tz: 'Asia/Ho_Chi_Minh',
-            uid: uid,
-          },
-          domain: [
-            '|',
-            ['user_id', '=', uid],
-            ['contributor_ids.id', '=', uid],
-          ],
-          fields: ['stage_id', 'name'],
-          groupby: ['stage_id'],
-          orderby: '',
-        },
-        method: 'read_group',
-        model: 'project.task',
-      };
-      this.post(params).then(resolve).catch(reject);
-    });
-  };
-
-  getAllTaskByStage = (uid, lang, stage_id) => {
-    return new Promise((resolve, reject) => {
-      let params = {
-        context: {
-          lang: lang,
-          tz: 'Asia/Ho_Chi_Minh',
-          uid: uid,
-        },
-        domain: [
-          '&',
-          ['stage_id', '=', stage_id],
-          '|',
-          ['user_id', '=', uid],
-          ['contributor_ids.id', '=', uid],
-        ],
-        fields: [
-          'color',
-          'priority',
-          'name',
-          'date_deadline',
-          'creator_id',
-          'user_id',
-          'kanban_state_label',
-        ],
-        limit: 10,
-        model: 'project.task',
       };
       this.post(params, getTaskURL).then(resolve).catch(reject);
     });

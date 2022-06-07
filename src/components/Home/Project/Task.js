@@ -39,9 +39,11 @@ class AllTask extends Component {
   }
 
   componentDidMount = async () => {
-    let result = await projectManageBusiness.getAllTaskStage(
+    // Load Tasks
+    let result = await projectManageBusiness.getStage(
       userInfo.uid,
       userInfo.lang,
+      this.props.route.params.domain,
     );
     if (result.status === 'success') {
       let allTask = result.data.map(item => ({
@@ -54,25 +56,36 @@ class AllTask extends Component {
 
       for (let i = 0; i < allTask.length; i++) {
         if (!allTask[i].fold) {
-          allTask[i].tasks = await this.getAllTaskByStage(allTask[i].stage_id);
+          allTask[i].tasks = await this.getTaskByStage(allTask[i].stage_id);
         }
       }
       this.setState({allTasks: allTask});
     }
   };
 
-  getAllTaskByStage = async stage_id => {
-    let res = await projectManageBusiness.getAllTaskByStage(
+  getTaskByStage = async stage_id => {
+    let res = await projectManageBusiness.getTasks(
       userInfo.uid,
       userInfo.lang,
       stage_id,
+      this.props.route.params.domain,
     );
     if (res.status === 'success') {
       return res.data.records;
+    } else {
+      return [];
     }
   };
 
   openDrawerNavigation = () => this.props.navigation.openDrawer();
+
+  backProjectScreen = () =>
+    this.props.navigation.navigate('MenuNavigation', {
+      screen: 'ProjectNavigation',
+      params: {
+        screen: 'Project',
+      },
+    });
 
   loadTaskScreen = itemTask =>
     this.props.navigation.navigate('TaskDetail', {
@@ -110,7 +123,7 @@ class AllTask extends Component {
 
     if (!value) {
       if (res[stage_index].tasks.length === 0) {
-        let tasks = await this.getAllTaskByStage(stage_id);
+        let tasks = await this.getTaskByStage(stage_id);
 
         res[stage_index].tasks = tasks;
       }
@@ -125,17 +138,31 @@ class AllTask extends Component {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.header_icon_wrapper}
-            onPress={this.openDrawerNavigation}>
-            <FontAwesome5
-              style={styles.header_icon}
-              size={20}
-              name={'align-left'}
-            />
-          </TouchableOpacity>
+          {this.props.route.params.project_id ? (
+            <TouchableOpacity
+              style={styles.header_icon_wrapper}
+              onPress={this.backProjectScreen}>
+              <FontAwesome5
+                style={styles.header_icon}
+                size={20}
+                name={'arrow-left'}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.header_icon_wrapper}
+              onPress={this.openDrawerNavigation}>
+              <FontAwesome5
+                style={styles.header_icon}
+                size={20}
+                name={'align-left'}
+              />
+            </TouchableOpacity>
+          )}
 
-          <Text style={styles.header_text}>All Tasks</Text>
+          <Text style={styles.header_text}>
+            {this.props.route.params.project_name || 'All Tasks'}
+          </Text>
         </View>
         <View style={{flex: 1}}>
           <ScrollView horizontal={true}>
@@ -175,88 +202,93 @@ class AllTask extends Component {
                     </TouchableOpacity>
                   </View>
                   <ScrollView>
-                    {item.tasks.map(itemTask => (
-                      <View style={styles.task} key={itemTask.id}>
-                        <View
-                          style={{
-                            ...styles.task_color,
-                            backgroundColor: itemTask.color
-                              ? taskColor[itemTask.color]
-                              : '#fff',
-                          }}></View>
-                        <View style={styles.task_content}>
-                          <View style={styles.task_header}>
-                            <TouchableOpacity
-                              onPress={() => this.loadTaskScreen(itemTask)}>
-                              <Text style={styles.task_name}>
-                                {itemTask.name}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                          <View style={styles.item_wrapper}>
-                            <Text style={styles.item_label}>Status</Text>
-                            <Text style={styles.task_status}>
-                              {itemTask.kanban_state_label}
-                            </Text>
-                          </View>
-                          <View style={styles.item_wrapper}>
-                            <Text style={styles.item_label}>Assigned</Text>
-                            <View style={styles.user_img_wrapper}>
-                              <Image
-                                style={styles.user_img}
-                                source={
-                                  {
-                                    uri:
-                                      partnerAvatarURL + itemTask.creator_id[0],
-                                  } || require('~/assets/images/user.png')
-                                }
-                              />
-                              <Text
-                                style={{
-                                  color: '#664e4d',
-                                  fontSize: 18,
-                                  marginLeft: 5,
-                                  marginRight: 5,
-                                }}>
-                                >
-                              </Text>
-                              <Image
-                                style={styles.user_img}
-                                source={
-                                  {uri: avatarURL + itemTask.user_id[0]} ||
-                                  require('~/assets/images/user.png')
-                                }
-                              />
+                    {item.tasks
+                      ? item.tasks.map(itemTask => (
+                          <View style={styles.task} key={itemTask.id}>
+                            <View
+                              style={{
+                                ...styles.task_color,
+                                backgroundColor: itemTask.color
+                                  ? taskColor[itemTask.color]
+                                  : '#fff',
+                              }}></View>
+                            <View style={styles.task_content}>
+                              <View style={styles.task_header}>
+                                <TouchableOpacity
+                                  onPress={() => this.loadTaskScreen(itemTask)}>
+                                  <Text style={styles.task_name}>
+                                    {itemTask.name}
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                              <View style={styles.item_wrapper}>
+                                <Text style={styles.item_label}>Status</Text>
+                                <Text style={styles.task_status}>
+                                  {itemTask.kanban_state_label}
+                                </Text>
+                              </View>
+                              <View style={styles.item_wrapper}>
+                                <Text style={styles.item_label}>Assigned</Text>
+                                <View style={styles.user_img_wrapper}>
+                                  <Image
+                                    style={styles.user_img}
+                                    source={
+                                      {
+                                        uri:
+                                          partnerAvatarURL +
+                                          itemTask.creator_id[0],
+                                      } || require('~/assets/images/user.png')
+                                    }
+                                  />
+                                  <Text
+                                    style={{
+                                      color: '#664e4d',
+                                      fontSize: 18,
+                                      marginLeft: 5,
+                                      marginRight: 5,
+                                    }}>
+                                    >
+                                  </Text>
+                                  <Image
+                                    style={styles.user_img}
+                                    source={
+                                      {uri: avatarURL + itemTask.user_id[0]} ||
+                                      require('~/assets/images/user.png')
+                                    }
+                                  />
+                                </View>
+                              </View>
+                              <View style={styles.item_wrapper}>
+                                <Text style={styles.item_label}>Priority</Text>
+                                <StarRating
+                                  disabled={false}
+                                  maxStars={3}
+                                  rating={parseInt(itemTask.priority)}
+                                  starSize={18}
+                                  fullStarColor={'#f0c735'}
+                                  selectedStar={rating => {
+                                    this.onChangeTaskPriority(
+                                      rating,
+                                      item.stage_id,
+                                      itemTask.id,
+                                    );
+                                  }}
+                                />
+                              </View>
+                              {itemTask.date_deadline && (
+                                <View style={styles.item_wrapper}>
+                                  <Text style={styles.item_label}>
+                                    Deadline
+                                  </Text>
+                                  <Text style={styles.task_deadline}>
+                                    {itemTask.date_deadline}
+                                  </Text>
+                                </View>
+                              )}
                             </View>
                           </View>
-                          <View style={styles.item_wrapper}>
-                            <Text style={styles.item_label}>Priority</Text>
-                            <StarRating
-                              disabled={false}
-                              maxStars={3}
-                              rating={parseInt(itemTask.priority)}
-                              starSize={18}
-                              fullStarColor={'#f0c735'}
-                              selectedStar={rating => {
-                                this.onChangeTaskPriority(
-                                  rating,
-                                  item.stage_id,
-                                  itemTask.id,
-                                );
-                              }}
-                            />
-                          </View>
-                          {itemTask.date_deadline && (
-                            <View style={styles.item_wrapper}>
-                              <Text style={styles.item_label}>Deadline</Text>
-                              <Text style={styles.task_deadline}>
-                                {itemTask.date_deadline}
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                      </View>
-                    ))}
+                        ))
+                      : null}
                   </ScrollView>
                 </View>
               ),

@@ -63,28 +63,6 @@ class AuthBusiness extends Service {
     userInfo.allowedCompany = user.user_companies.allowed_companies;
   };
 
-  // getUserInfomation = () => {
-  //   return new Promise(async (resolve, reject) => {
-  //     let result = await this.checkSession();
-  //     if (result.status === 'true') {
-  //       let user = result.data;
-  //       let currentCompany = user.user_companies.current_company;
-
-  //       userInfo.uid = user.uid;
-  //       userInfo.name = user.name;
-  //       userInfo.username = user.username;
-  //       userInfo.lang = user.user_context.lang;
-  //       userInfo.currentCompanyName = currentCompany?.[1] ?? '';
-  //       userInfo.currentCompanyId = currentCompany?.[0] ?? 0;
-  //       userInfo.allowedCompany = user.user_companies.allowed_companies;
-
-  //       resolve({status: 'success'});
-  //     } else {
-  //       resolve({status: 'fail'});
-  //     }
-  //   });
-  // };
-
   changeLang = (uid, newLang) => {
     return new Promise(async (resolve, reject) => {
       let params = {
