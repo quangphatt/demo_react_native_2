@@ -28,7 +28,7 @@ const projectColor = {
   11: '#9365b8',
 };
 
-class AllProject extends Component {
+class Project extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -347,4 +347,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withGlobalContext(AllProject);
+export default withGlobalContext(Project);

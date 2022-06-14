@@ -7,7 +7,7 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import {withGlobalContext} from '~/provider/GlobalContext';
+import Global, {withGlobalContext} from '~/provider/GlobalContext';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import authBusiness from '~/business/AuthBusiness';
