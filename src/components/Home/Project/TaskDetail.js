@@ -244,10 +244,12 @@ class TaskDetail extends Component {
                 </Text>
                 <TouchableOpacity style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
-                    {moment
-                      .utc(this.state.task_infomation.planned_date_begin)
-                      .tz(userInfo.tz)
-                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                    {this.state.task_infomation.planned_date_begin
+                      ? moment
+                          .utc(this.state.task_infomation.planned_date_begin)
+                          .tz(userInfo.tz)
+                          .format('DD/MM/YYYY HH:mm:ss')
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -262,10 +264,12 @@ class TaskDetail extends Component {
                 </Text>
                 <TouchableOpacity style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
-                    {moment
-                      .utc(this.state.task_infomation.planned_date_end)
-                      .tz(userInfo.tz)
-                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                    {this.state.task_infomation.planned_date_end
+                      ? moment
+                          .utc(this.state.task_infomation.planned_date_end)
+                          .tz(userInfo.tz)
+                          .format('DD/MM/YYYY HH:mm:ss')
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -346,10 +350,12 @@ class TaskDetail extends Component {
                 </Text>
                 <TouchableOpacity style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
-                    {moment
-                      .utc(this.state.task_infomation.date_deadline)
-                      .tz(userInfo.tz)
-                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                    {this.state.task_infomation.date_deadline
+                      ? moment
+                          .utc(this.state.task_infomation.date_deadline)
+                          .tz(userInfo.tz)
+                          .format('DD/MM/YYYY HH:mm:ss')
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -435,10 +441,12 @@ class TaskDetail extends Component {
                 </Text>
                 <TouchableOpacity style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
-                    {moment
-                      .utc(this.state.task_infomation.constraint_date)
-                      .tz(userInfo.tz)
-                      .format('DD/MM/YYYY') ?? ''}
+                    {this.state.task_infomation.constraint_date
+                      ? moment
+                          .utc(this.state.task_infomation.constraint_date)
+                          .tz(userInfo.tz)
+                          .format('DD/MM/YYYY')
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -550,10 +558,12 @@ class TaskDetail extends Component {
                 </Text>
                 <TouchableOpacity style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
-                    {moment
-                      .utc(this.state.task_infomation.date_finished)
-                      .tz(userInfo.tz)
-                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                    {this.state.task_infomation.date_finished
+                      ? moment
+                          .utc(this.state.task_infomation.date_finished)
+                          .tz(userInfo.tz)
+                          .format('DD/MM/YYYY HH:mm:ss')
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
