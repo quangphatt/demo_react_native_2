@@ -95,6 +95,13 @@ class Task extends Component {
     this.props.navigation.navigate('TaskDetail', {
       task_id: itemTask.id,
       task_name: itemTask.name,
+      stage_list: this.state.allTasks
+        .map(item => ({
+          stage_id: item.stage_id,
+          stage_name: item.stage_name || 'Undefined',
+          fold: item.fold,
+        }))
+        .filter(item => !item.fold),
     });
 
   onChangeTaskPriority = async (newPriority, stage_id, task_id) => {
