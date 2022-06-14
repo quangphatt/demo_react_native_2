@@ -18,17 +18,6 @@ import {userInfo} from '~/utils/config';
 import moment from 'moment';
 import 'moment-timezone';
 
-const testListStage = [
-  {stage_name: 'New', stage_id: 1},
-  {stage_name: 'Doing', stage_id: 2},
-  {stage_name: 'Review', stage_id: 3},
-  {stage_name: 'Beta Testing', stage_id: 4},
-  {stage_name: 'Feedback', stage_id: 5},
-  {stage_name: 'Done', stage_id: 6},
-];
-
-const currentStageId = 2;
-
 class TaskDetail extends Component {
   constructor(props) {
     super(props);
@@ -39,8 +28,6 @@ class TaskDetail extends Component {
   }
 
   componentDidMount = async () => {
-    // Get all Stage
-
     // Get task info
     let result = await projectManageBusiness.getTaskInfomation(
       userInfo.uid,
@@ -109,8 +96,9 @@ class TaskDetail extends Component {
 
         <View style={styles.status_bar}>
           <ScrollView horizontal={true}>
-            {testListStage.map(item =>
-              item.stage_id === currentStageId ? (
+            {this.props.route.params.stage_list.map(item =>
+              item.stage_id ===
+              (this.state.task_infomation.stage_id?.[0] ?? 0) ? (
                 <View style={styles.status_bar_stage_wrapper_current}>
                   <Text style={styles.status_bar_stage_text_current}>
                     {item.stage_name}
@@ -136,7 +124,7 @@ class TaskDetail extends Component {
             {this.props.route.params.task_name}
           </Text>
           {this.state.task_infomation ? (
-            <ScrollView>
+            <ScrollView style={styles.info_wrapper}>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>Task Number</Text>
                 <TouchableOpacity
@@ -380,7 +368,7 @@ class TaskDetail extends Component {
                   <StarRating
                     disabled={false}
                     maxStars={3}
-                    rating={this.state.task_infomation.priority}
+                    rating={parseInt(this.state.task_infomation.priority)}
                     starSize={18}
                     fullStarColor={'#f0c735'}
                     selectedStar={rating => {}}
@@ -678,13 +666,15 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 10,
-    marginBottom: 220,
   },
   task_name: {
     color: '#000',
     fontWeight: 'bold',
     fontSize: 18,
     marginBottom: 5,
+  },
+  info_wrapper: {
+    marginBottom: 180,
   },
   task_info_item: {
     flexDirection: 'row',

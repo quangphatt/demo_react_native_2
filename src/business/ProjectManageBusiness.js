@@ -153,6 +153,7 @@ class ProjectManageBusiness extends Service {
           [task_id],
           [
             'task_number',
+            'stage_id',
             'name',
             'project_id',
             'project_phase_id',
