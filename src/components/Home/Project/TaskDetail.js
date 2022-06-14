@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,6 +15,8 @@ import ModalEditTaskInfo from '~/modal/ModalEditTaskInfo';
 import StarRating from 'react-native-star-rating';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
 import {userInfo} from '~/utils/config';
+import moment from 'moment';
+import 'moment-timezone';
 
 const testListStage = [
   {stage_name: 'New', stage_id: 1},
@@ -29,10 +32,30 @@ const currentStageId = 2;
 class TaskDetail extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      task_id: this.props.route.params.task_id,
+      task_infomation: {},
+    };
   }
 
-  componentDidMount = async () => {};
+  componentDidMount = async () => {
+    // Get all Stage
+
+    // Get task info
+    let result = await projectManageBusiness.getTaskInfomation(
+      userInfo.uid,
+      userInfo.lang,
+      userInfo.tz,
+      this.props.route.params.task_id,
+    );
+    if (result.status === 'success') {
+      let taskInfo = result.data[0] ?? {};
+
+      this.setState({
+        task_infomation: taskInfo,
+      });
+    }
+  };
 
   BackToTaskScreen = () => {
     this.props.navigation.goBack();
@@ -109,114 +132,433 @@ class TaskDetail extends Component {
         </View>
 
         <View style={styles.task_info}>
-          <ScrollView>
-            <Text style={styles.task_name}>
-              {this.props.route.params.task_name}
-            </Text>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Task Number</Text>
-              <TouchableOpacity
-                style={styles.task_info_item_value}
-                onPress={() =>
-                  this.onEditTaskInfo('Task Number', '0002082002')
-                }>
-                <Text style={styles.task_info_item_value_text}>0008022002</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Priority</Text>
-              <View style={styles.task_info_item_value}>
-                <StarRating
-                  disabled={false}
-                  maxStars={3}
-                  rating={2}
-                  starSize={18}
-                  fullStarColor={'#f0c735'}
-                  selectedStar={rating => {}}
-                />
+          <Text style={styles.task_name}>
+            {this.props.route.params.task_name}
+          </Text>
+          {this.state.task_infomation ? (
+            <ScrollView>
+              <View style={styles.task_info_item}>
+                <Text style={styles.task_info_item_label}>Task Number</Text>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={() =>
+                    this.onEditTaskInfo(
+                      'Task Number',
+                      this.state.task_infomation.task_number,
+                    )
+                  }>
+                  <Text style={styles.task_info_item_value_text}>
+                    {this.state.task_infomation.task_number}
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Project</Text>
-              <TouchableOpacity
-                style={styles.task_info_item_value}
-                onPress={() => this.onEditTaskInfo('Project', 'XBOSS UI/UX')}>
-                <Text style={styles.task_info_item_value_text}>
-                  XBOSS UI/UX
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.project_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Project
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Tag</Text>
-              <TouchableOpacity
-                style={styles.task_info_item_value}
-                onPress={() => this.onEditTaskInfo('Tag', 'XBOSS UI/UX')}>
-                <Text style={styles.task_info_item_value_text}>
-                  XBOSS UI/UX
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.project_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.project_phase_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Project Phase
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Type</Text>
-              <TouchableOpacity
-                style={styles.task_info_item_value}
-                onPress={() => this.onEditTaskInfo('Type', 'XBOSS UI/UX')}>
-                <Text style={styles.task_info_item_value_text}>
-                  XBOSS UI/UX
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.project_phase_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.team_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Assigned Team
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>WBS ID</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>
-                  XBOSS UI/UX
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.team_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.user_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Assigned To
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Parent Task</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>
-                  XBOSS UI/UX
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.user_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.assigned_ids
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Assigned Resources
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Assigned To</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>
-                  XBOSS UI/UX
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}></Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text style={styles.task_info_item_label}>Done %</Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {this.state.task_infomation.percent_done ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.planned_date_begin
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Start Date
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Assigned Team</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>
-                  Design Team
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {moment
+                      .utc(this.state.task_infomation.planned_date_begin)
+                      .tz(userInfo.tz)
+                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.planned_date_end
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  End Date
                 </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Reported By</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>Admin</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Deadline</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>12/08/2022</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.task_info_item}>
-              <Text style={styles.task_info_item_label}>Task Number</Text>
-              <TouchableOpacity style={styles.task_info_item_value}>
-                <Text style={styles.task_info_item_value_text}>Finish</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {moment
+                      .utc(this.state.task_infomation.planned_date_end)
+                      .tz(userInfo.tz)
+                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text style={styles.task_info_item_label}>Effort (Hours)</Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {this.state.task_infomation.effort ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.supporter_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Supporter
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.supporter_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.creator_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Reported By
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.creator_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.need_install
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Need Install
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}></Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.milestone_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Milestones
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.milestone_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.date_deadline
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Deadline
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {moment
+                      .utc(this.state.task_infomation.date_deadline)
+                      .tz(userInfo.tz)
+                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.task_level_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Task Level
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.task_level_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text style={styles.task_info_item_label}>Priority</Text>
+                <View style={styles.task_info_item_value}>
+                  <StarRating
+                    disabled={false}
+                    maxStars={3}
+                    rating={this.state.task_infomation.priority}
+                    starSize={18}
+                    fullStarColor={'#f0c735'}
+                    selectedStar={rating => {}}
+                  />
+                </View>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.tag_ids
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Tags
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}></Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.scheduling_mode
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Scheduling Mode
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {this.state.task_infomation.scheduling_mode ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.constraint_type
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Constraint Type
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {this.state.task_infomation.constraint_type ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.constraint_date
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Constraint Date
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {moment
+                      .utc(this.state.task_infomation.constraint_date)
+                      .tz(userInfo.tz)
+                      .format('DD/MM/YYYY') ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text style={styles.task_info_item_label}>Effort Driven</Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  {this.state.task_infomation.effort_driven ? (
+                    <Feather name={'check-square'} size={15} color={'#00f'} />
+                  ) : (
+                    <Feather name={'square'} size={15} color={'#000'} />
+                  )}
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text style={styles.task_info_item_label}>
+                  Manually Scheduled
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  {this.state.task_infomation.manually_scheduled ? (
+                    <Feather name={'check-square'} size={15} color={'#00f'} />
+                  ) : (
+                    <Feather name={'square'} size={15} color={'#000'} />
+                  )}
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.option
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Option
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {this.state.task_infomation.option}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.product_backlog_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Request
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.product_backlog_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.sprint_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Sprint
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.sprint_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.release_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Release
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.release_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.type_id
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Type
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text_blue}>
+                    {this.state.task_infomation.type_id?.[1] ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.task_info_item}>
+                <Text
+                  style={
+                    this.state.task_infomation.date_finished
+                      ? styles.task_info_item_label
+                      : styles.task_info_item_label_disabled
+                  }>
+                  Done Date
+                </Text>
+                <TouchableOpacity style={styles.task_info_item_value}>
+                  <Text style={styles.task_info_item_value_text}>
+                    {moment
+                      .utc(this.state.task_infomation.date_finished)
+                      .tz(userInfo.tz)
+                      .format('DD/MM/YYYY HH:mm:ss') ?? ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          ) : null}
         </View>
 
         <View style={styles.bottom_bar}>
@@ -326,7 +668,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 10,
-    marginBottom: 150,
+    marginBottom: 220,
   },
   task_name: {
     color: '#000',
@@ -345,17 +687,24 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#000',
   },
+  task_info_item_label_disabled: {
+    fontSize: 15,
+    color: '#8f6f6d',
+  },
   task_info_item_value: {
     width: '55%',
     borderWidth: 1,
     borderColor: '#e7e7e7',
     borderRadius: 5,
-    height: 35,
+    minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   task_info_item_value_text: {
     color: '#000',
+  },
+  task_info_item_value_text_blue: {
+    color: '#00f',
   },
   bottom_bar: {
     flexDirection: 'row',

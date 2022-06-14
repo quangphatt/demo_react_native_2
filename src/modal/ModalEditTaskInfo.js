@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     height: 40,
     marginBottom: 15,
     padding: 10,
+    color:'#000',
   },
   button_wrapper: {
     flexDirection: 'row',
