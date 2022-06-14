@@ -145,6 +145,58 @@ class ProjectManageBusiness extends Service {
       this.post(params).then(resolve).catch(reject);
     });
   };
+
+  getTaskInfomation = (uid, lang, tz, task_id) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          [
+            'task_number',
+            'name',
+            'project_id',
+            'project_phase_id',
+            'team_id',
+            'user_id',
+            'assigned_ids',
+            'percent_done',
+            'planned_date_begin',
+            'planned_date_end',
+            'effort',
+            'supporter_id',
+            'creator_id',
+            'need_install',
+            'milestone_id',
+            'date_deadline',
+            'task_level_id',
+            'priority',
+            'tag_ids',
+            'scheduling_mode',
+            'constraint_type',
+            'constraint_date',
+            'effort_driven',
+            'manually_scheduled',
+            'option',
+            'product_backlog_id',
+            'sprint_id',
+            'release_id',
+            'type_id',
+            'date_finished',
+          ],
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'read',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
 }
 
 const projectManageBusiness = new ProjectManageBusiness();
