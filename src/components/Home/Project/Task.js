@@ -32,7 +32,7 @@ const taskColor = {
   11: '#9365b8',
 };
 
-class AllTask extends Component {
+class Task extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -430,4 +430,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withGlobalContext(AllTask);
+export default withGlobalContext(Task);

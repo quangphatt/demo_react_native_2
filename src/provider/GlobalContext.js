@@ -1,5 +1,6 @@
 import React from 'react';
 import {avatarURL} from '../service/configURL';
+import ComponentModal from '~/modal/ComponentModal';
 
 const GlobalContext = React.createContext({});
 
@@ -11,6 +12,7 @@ export class GlobalContextProvider extends React.Component {
     this.state = {
       isLogin: false,
     };
+    this.componentModalRef = React.createRef();
     GlobalContextProvider.componentInstance = this;
   }
 
@@ -22,12 +24,28 @@ export class GlobalContextProvider extends React.Component {
     GlobalContextProvider.componentInstance.hideAlert();
   };
 
+  static _showModal = params => {
+    GlobalContextProvider.componentInstance.showModal(params);
+  };
+
+  static _hideModal = params => {
+    GlobalContextProvider.componentInstance.hideModal(params);
+  };
+
   showAlert = () => {
     // Thực hiện mở Modal Alert tại đây
   };
 
   hideAlert = () => {
     // Thực hiện đóng Modal Alert tại đây
+  };
+
+  showModal = ({content}) => {
+    this.componentModalRef.current.open({content});
+  };
+
+  hideModal = ({callback}) => {
+    this.componentModalRef.current.close({callback});
   };
 
   setLogin = value => {
@@ -42,9 +60,9 @@ export class GlobalContextProvider extends React.Component {
         value={{
           ...this.state,
           setLogin: this.setLogin,
-          showAlert: this.showAlert,
         }}>
         {this.props.children}
+        <ComponentModal ref={this.componentModalRef} />
       </GlobalContext.Provider>
     );
   }

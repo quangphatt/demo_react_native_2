@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
 import AppNavigation from './src/Navigation/AppNavigation/AppNavigation';
 import GlobalContext from './src/provider/GlobalContext';
+import {
+  gestureHandlerRootHOC,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
 
 import {LogBox} from 'react-native';
 
@@ -17,9 +21,11 @@ class App extends Component {
 
   render() {
     return (
-      <GlobalContext>
-        <AppNavigation />
-      </GlobalContext>
+      <GestureHandlerRootView style={{flex:1}}>
+        <GlobalContext>
+          <AppNavigation />
+        </GlobalContext>
+      </GestureHandlerRootView>
     );
   }
 }

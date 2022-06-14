@@ -1,10 +1,5 @@
 import React, {Component} from 'react';
-import {
-  createDrawerNavigator,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from '@react-navigation/drawer';
+import {DrawerContentScrollView} from '@react-navigation/drawer';
 import {
   View,
   Text,
