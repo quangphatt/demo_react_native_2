@@ -198,6 +198,42 @@ class ProjectManageBusiness extends Service {
       this.post(params).then(resolve).catch(reject);
     });
   };
+
+  getAssignedResource = (uid, lang, tz, assigned_ids) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [assigned_ids, ['display_name']],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'read',
+        model: 'res.users',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  getTaskTags = (uid, lang, tz, tag_ids) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [tag_ids, ['display_name', 'color']],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'read',
+        model: 'project.tags',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
 }
 
 const projectManageBusiness = new ProjectManageBusiness();

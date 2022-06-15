@@ -18,6 +18,21 @@ import {userInfo} from '~/utils/config';
 import moment from 'moment';
 import 'moment-timezone';
 
+const tagColor = {
+  0: '#fff',
+  1: '#f06050',
+  2: '#f4a460',
+  3: '#f7cd1f',
+  4: '#6cc1ed',
+  5: '#814968',
+  6: '#eb7e7f',
+  7: '#2c8397',
+  8: '#475577',
+  9: '#d6145f',
+  10: '#30c381',
+  11: '#9365b8',
+};
+
 class TaskDetail extends Component {
   constructor(props) {
     super(props);
@@ -28,7 +43,7 @@ class TaskDetail extends Component {
   }
 
   componentDidMount = async () => {
-    // Get task info
+    // Get Task info
     let result = await projectManageBusiness.getTaskInfomation(
       userInfo.uid,
       userInfo.lang,
@@ -41,6 +56,46 @@ class TaskDetail extends Component {
       this.setState({
         task_infomation: taskInfo,
       });
+    }
+
+    // Get Assigned Resource
+    if (this.state.task_infomation.assigned_ids) {
+      let getAssignedResource = await projectManageBusiness.getAssignedResource(
+        userInfo.uid,
+        userInfo.lang,
+        userInfo.tz,
+        this.state.task_infomation.assigned_ids,
+      );
+      if (getAssignedResource.status === 'success') {
+        let assigned_items = getAssignedResource.data;
+        this.setState({
+          task_infomation: {
+            ...this.state.task_infomation,
+            assigned_items: assigned_items,
+          },
+        });
+      }
+    }
+
+    console.log(this.state.task_infomation);
+
+    // Get Tags
+    if (this.state.task_infomation.tag_ids) {
+      let getTags = await projectManageBusiness.getTaskTags(
+        userInfo.uid,
+        userInfo.lang,
+        userInfo.tz,
+        this.state.task_infomation.tag_ids,
+      );
+      if (getTags.status === 'success') {
+        let tag_items = getTags.data;
+        this.setState({
+          task_infomation: {
+            ...this.state.task_infomation,
+            tag_items: tag_items,
+          },
+        });
+      }
     }
   };
 
@@ -209,8 +264,14 @@ class TaskDetail extends Component {
                   }>
                   Assigned Resources
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text}></Text>
+                <TouchableOpacity style={styles.task_info_item_value_multy}>
+                  {this.state.task_infomation.assigned_items?.map(item => (
+                    <View style={styles.assigned_item}>
+                      <Text style={styles.assigned_item_text}>
+                        {item.display_name}
+                      </Text>
+                    </View>
+                  ))}
                 </TouchableOpacity>
               </View>
               <View style={styles.task_info_item}>
@@ -384,8 +445,18 @@ class TaskDetail extends Component {
                   }>
                   Tags
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text}></Text>
+                <TouchableOpacity style={styles.task_info_item_value_multy}>
+                  {this.state.task_infomation.tag_items?.map(item => (
+                    <View
+                      style={{
+                        ...styles.tag_item,
+                        backgroundColor: tagColor[item.color] || '#000',
+                      }}>
+                      <Text style={styles.tag_item_text}>
+                        {item.display_name}
+                      </Text>
+                    </View>
+                  ))}                  
                 </TouchableOpacity>
               </View>
               <View style={styles.task_info_item}>
@@ -699,12 +770,48 @@ const styles = StyleSheet.create({
     minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 2,
+  },
+  task_info_item_value_multy: {
+    width: '55%',
+    borderWidth: 1,
+    borderColor: '#e7e7e7',
+    borderRadius: 5,
+    minHeight: 40,
+    flexWrap: 'wrap',
+    padding: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   task_info_item_value_text: {
     color: '#000',
   },
   task_info_item_value_text_blue: {
     color: '#00f',
+  },
+  assigned_item: {
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    padding: 1,
+    margin: 2,
+  },
+  assigned_item_text: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  tag_item: {
+    borderRadius: 10,
+    padding: 2,
+    margin: 2,
+  },
+  tag_item_text: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   bottom_bar: {
     flexDirection: 'row',
