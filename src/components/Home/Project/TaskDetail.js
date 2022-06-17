@@ -1,17 +1,19 @@
-import React, {Component} from 'react';
+import React, {Component, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Global, {withGlobalContext} from '~/provider/GlobalContext';
-import ModalEditTaskInfo from '~/modal/ModalEditTaskInfo';
+import ModalEditTaskInfo from '~/modal/ModalEditTaskInfo/ModalEditTaskInfo';
+import TaskEditText from '~/modal/ModalEditTaskInfo/TaskEditText';
 import StarRating from 'react-native-star-rating';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
 import {userInfo} from '~/utils/config';
@@ -77,8 +79,6 @@ class TaskDetail extends Component {
       }
     }
 
-    console.log(this.state.task_infomation);
-
     // Get Tags
     if (this.state.task_infomation.tag_ids) {
       let getTags = await projectManageBusiness.getTaskTags(
@@ -100,20 +100,45 @@ class TaskDetail extends Component {
   };
 
   BackToTaskScreen = () => {
-    this.props.navigation.goBack();
+    this.props.navigation.navigate(
+      'Task',
+      this.props.route.params.task_params,
+    );
   };
 
-  onChangeStage = () => {};
-
-  onEditTaskInfo = (info_label, info_value) => {
+  onEditTaskName = async () => {
+    let task_name_ref = React.createRef();
     Global._showModal({
       content: (
         <ModalEditTaskInfo
           hideModal={() => {
             Global._hideModal({callback: null});
           }}
-          label={info_label}
-          value={info_value}
+          updateInfo={async () => {
+            let changeTaskName = await projectManageBusiness.changeTaskName(
+              userInfo.uid,
+              userInfo.lang,
+              userInfo.tz,
+              this.state.task_id,
+              task_name_ref.current.value().trim(),
+            );
+            if (changeTaskName.status === 'success') {
+              this.setState({
+                task_infomation: {
+                  ...this.state.task_infomation,
+                  name: task_name_ref.current.value().trim(),
+                },
+              });
+            }
+          }}
+          modalContent={
+            <TaskEditText
+              label="Task Name"
+              value={this.state.task_infomation.name}
+              ref={task_name_ref}
+            />
+          }
+          label={'Task Name'}
         />
       ),
     });
@@ -175,21 +200,16 @@ class TaskDetail extends Component {
         </View>
 
         <View style={styles.task_info}>
-          <Text style={styles.task_name}>
-            {this.props.route.params.task_name}
-          </Text>
+          <TouchableOpacity onPress={this.onEditTaskName}>
+            <Text style={styles.task_name}>
+              {this.state.task_infomation.name}
+            </Text>
+          </TouchableOpacity>
           {this.state.task_infomation ? (
             <ScrollView style={styles.info_wrapper}>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>Task Number</Text>
-                <TouchableOpacity
-                  style={styles.task_info_item_value}
-                  onPress={() =>
-                    this.onEditTaskInfo(
-                      'Task Number',
-                      this.state.task_infomation.task_number,
-                    )
-                  }>
+                <TouchableOpacity style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.task_number}
                   </Text>
@@ -456,7 +476,7 @@ class TaskDetail extends Component {
                         {item.display_name}
                       </Text>
                     </View>
-                  ))}                  
+                  ))}
                 </TouchableOpacity>
               </View>
               <View style={styles.task_info_item}>
