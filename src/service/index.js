@@ -5,21 +5,20 @@ class Service {
   post = (params, suburl = '/web/dataset/call_kw') => {
     return new Promise(async (resolve, reject) => {
       let url = host + suburl;
-      let result = await axios.post(url, {params:params});
-      if(result?.data?.result?? false){
+      let result = await axios.post(url, {params: params});
+      if (result?.data?.result ?? false) {
         resolve({
-          status: "success",
+          status: 'success',
           data: result.data.result,
-        })
-      }
-      else{
+        });
+      } else {
         resolve({
-          status: "error",
-          data: ""     // Tu bat ket qua
-        })
+          status: 'error',
+          data: '', // Tu bat ket qua
+        });
       }
     });
   };
 }
 
-export default Service
+export default Service;

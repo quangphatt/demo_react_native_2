@@ -10,35 +10,23 @@ import {
 class ModalEditTaskInfo extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      text_value: this.props.value,
-    };
+    this.state = {};
   }
-
-  onChangeValue = value => {
-    this.setState({
-      text_value: value,
-    });
-  };
 
   onClose = () => {
     this.props.hideModal();
   };
 
-  onUpdate = () => {};
+  onUpdate = () => {
+    this.props.updateInfo();
+  };
 
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Edit Task Infomation</Text>
         <Text style={styles.message}>{this.props.label}</Text>
-        <TextInput
-          style={styles.text_input}
-          placeholder={'Enter ' + this.props.label}
-          placeholderTextColor="#94abb3"
-          value={this.state.text_value}
-          onChangeText={this.onChangeValue}
-        />
+        {this.props.modalContent}
         <View style={styles.button_wrapper}>
           <TouchableOpacity style={styles.button_close} onPress={this.onClose}>
             <Text style={styles.button_close_text}>Close</Text>
@@ -81,7 +69,7 @@ const styles = StyleSheet.create({
     height: 40,
     marginBottom: 15,
     padding: 10,
-    color:'#000',
+    color: '#000',
   },
   button_wrapper: {
     flexDirection: 'row',

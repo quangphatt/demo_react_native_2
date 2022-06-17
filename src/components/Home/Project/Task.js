@@ -41,29 +41,32 @@ class Task extends Component {
   }
 
   componentDidMount = async () => {
-    // Load Tasks
-    let result = await projectManageBusiness.getStage(
-      userInfo.uid,
-      userInfo.lang,
-      userInfo.tz,
-      this.props.route.params.domain,
-    );
-    if (result.status === 'success') {
-      let allTask = result.data.map(item => ({
-        stage_id: item.stage_id[0],
-        stage_name: item.stage_id[1],
-        stage_count: item.stage_id_count,
-        fold: item.__fold,
-        tasks: [],
-      }));
+    const unsubscribe = this.props.navigation.addListener('focus', async () => {
+      let result = await projectManageBusiness.getStage(
+        userInfo.uid,
+        userInfo.lang,
+        userInfo.tz,
+        this.props.route.params.domain,
+      );
+      if (result.status === 'success') {
+        let allTask = result.data.map(item => ({
+          stage_id: item.stage_id[0],
+          stage_name: item.stage_id[1],
+          stage_count: item.stage_id_count,
+          fold: item.__fold,
+          tasks: [],
+        }));
 
-      for (let i = 0; i < allTask.length; i++) {
-        if (!allTask[i].fold) {
-          allTask[i].tasks = await this.getTaskByStage(allTask[i].stage_id);
+        for (let i = 0; i < allTask.length; i++) {
+          if (!allTask[i].fold) {
+            allTask[i].tasks = await this.getTaskByStage(allTask[i].stage_id);
+          }
         }
+        this.setState({allTasks: allTask});
       }
-      this.setState({allTasks: allTask});
-    }
+    });
+
+    return unsubscribe;
   };
 
   getTaskByStage = async stage_id => {
@@ -91,10 +94,9 @@ class Task extends Component {
       },
     });
 
-  loadTaskScreen = itemTask =>
+  loadTaskDetailScreen = itemTask =>
     this.props.navigation.navigate('TaskDetail', {
       task_id: itemTask.id,
-      task_name: itemTask.name,
       stage_list: this.state.allTasks
         .map(item => ({
           stage_id: item.stage_id,
@@ -102,6 +104,7 @@ class Task extends Component {
           fold: item.fold,
         }))
         .filter(item => !item.fold),
+      task_params: this.props.route.params,
     });
 
   onChangeTaskPriority = async (newPriority, stage_id, task_id) => {
@@ -227,7 +230,9 @@ class Task extends Component {
                             <View style={styles.task_content}>
                               <View style={styles.task_header}>
                                 <TouchableOpacity
-                                  onPress={() => this.loadTaskScreen(itemTask)}>
+                                  onPress={() =>
+                                    this.loadTaskDetailScreen(itemTask)
+                                  }>
                                   <Text style={styles.task_name}>
                                     {itemTask.name}
                                   </Text>

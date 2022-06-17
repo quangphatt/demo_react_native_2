@@ -107,7 +107,7 @@ class Project extends Component {
     }
   };
 
-  loadProjectTask = async itemProject => {
+  loadProjectTask = itemProject => {
     this.props.navigation.navigate('MenuNavigation', {
       screen: 'TaskNavigation',
       params: {
