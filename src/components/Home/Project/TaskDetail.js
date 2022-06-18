@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Global, {withGlobalContext} from '~/provider/GlobalContext';
 import ModalEditTaskInfo from '~/modal/ModalEditTaskInfo/ModalEditTaskInfo';
 import TaskEditText from '~/modal/ModalEditTaskInfo/TaskEditText';
+import TaskEditDropdownPicker from '~/modal/ModalEditTaskInfo/TaskEditDropdownPicker';
 import StarRating from 'react-native-star-rating';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
 import {userInfo} from '~/utils/config';
@@ -100,10 +101,7 @@ class TaskDetail extends Component {
   };
 
   BackToTaskScreen = () => {
-    this.props.navigation.navigate(
-      'Task',
-      this.props.route.params.task_params,
-    );
+    this.props.navigation.navigate('Task', this.props.route.params.task_params);
   };
 
   onEditTaskName = async () => {
@@ -139,6 +137,75 @@ class TaskDetail extends Component {
             />
           }
           label={'Task Name'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskProject = async () => {
+    let task_project_ref = React.createRef();
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.project_id ||
+              task_project_ref.current.value()[0] !==
+                this.state.task_infomation.project_id[0]
+            ) {
+              let changeTaskProject =
+                await projectManageBusiness.changeTaskProject(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  task_project_ref.current.value()[0],
+                );
+              if (changeTaskProject.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    project_id: task_project_ref.current.value(),
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Project'}
+              ref={task_project_ref}
+              currentValue={
+                this.state.task_infomation.project_id
+                  ? this.state.task_infomation.project_id?.[0]
+                  : false
+              }
+              getListItem={async () => {
+                let getListProject = await projectManageBusiness.getAllProject(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                );
+                if (getListProject.status === 'success') {
+                  return getListProject.data.records.map(item => ({
+                    value: item.id,
+                    label: item.name,
+                  }));
+                } else {
+                  return {
+                    value: this.state.task_infomation.project_id
+                      ? this.state.task_infomation.project_id?.[0]
+                      : false,
+                    label: 'Error!!!',
+                  };
+                }
+              }}
+            />
+          }
+          label={'Task Project'}
         />
       ),
     });
@@ -209,11 +276,11 @@ class TaskDetail extends Component {
             <ScrollView style={styles.info_wrapper}>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>Task Number</Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <View style={styles.task_info_item_value}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.task_number}
                   </Text>
-                </TouchableOpacity>
+                </View>
               </View>
               <View style={styles.task_info_item}>
                 <Text
@@ -224,7 +291,9 @@ class TaskDetail extends Component {
                   }>
                   Project
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskProject}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.project_id?.[1] ?? ''}
                   </Text>

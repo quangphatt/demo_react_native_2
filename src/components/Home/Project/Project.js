@@ -37,40 +37,47 @@ class Project extends Component {
   }
 
   componentDidMount = async () => {
-    //Load All Project
-    let arrres = [];
-    let result = await projectManageBusiness.getProjectStatus(
-      userInfo.uid,
-      userInfo.lang,
-      userInfo.tz,
-    );
-    if (result.status === 'success') {
-      arrres = result.data.map(item => ({
-        status: item.project_status[0],
-        status_name: item.project_status[1],
-        count: item.project_status_count,
-        fold: item.__fold,
-        projects: [],
-      }));
-      let res = await projectManageBusiness.getAllProject(
+    const unsubscribe = this.props.navigation.addListener('focus', async () => {
+      this.setState({
+        allProject: [],
+      });
+      //Load All Project
+      let arrres = [];
+      let result = await projectManageBusiness.getProjectStatus(
         userInfo.uid,
         userInfo.lang,
         userInfo.tz,
       );
-      if (res.status === 'success') {
-        res.data.records.forEach(itemProject => {
-          for (let i = 0; i < arrres.length; i++) {
-            if (itemProject.project_status[0] === arrres[i].status) {
-              arrres[i].projects.push(itemProject);
+      if (result.status === 'success') {
+        arrres = result.data.map(item => ({
+          status: item.project_status[0],
+          status_name: item.project_status[1],
+          count: item.project_status_count,
+          fold: item.__fold,
+          projects: [],
+        }));
+        let res = await projectManageBusiness.getAllProject(
+          userInfo.uid,
+          userInfo.lang,
+          userInfo.tz,
+        );
+        if (res.status === 'success') {
+          res.data.records.forEach(itemProject => {
+            for (let i = 0; i < arrres.length; i++) {
+              if (itemProject.project_status[0] === arrres[i].status) {
+                arrres[i].projects.push(itemProject);
+              }
             }
-          }
-        });
+          });
+        }
       }
-    }
 
-    this.setState({
-      allProject: arrres,
+      this.setState({
+        allProject: arrres,
+      });
     });
+
+    return unsubscribe;
   };
 
   openDrawerNavigation = () => this.props.navigation.openDrawer();

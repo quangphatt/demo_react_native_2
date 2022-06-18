@@ -277,6 +277,7 @@ const styles = StyleSheet.create({
   dropDownPicker_list: {},
   labelStyle: {
     fontSize: 16,
+    color:'#000',
     marginLeft: 5,
   },
   arrowIconStyle: {
