@@ -19,11 +19,17 @@ class TaskEditDropdownPicker extends Component {
     });
   };
 
-  value = () => [
-    this.state.currentValue,
-    this.state.listItem.find(item => item.value === this.state.currentValue)
-      .label,
-  ];
+  value = () => {
+    if (this.state.currentValue) {
+      return [
+        this.state.currentValue,
+        this.state.listItem.find(item => item.value === this.state.currentValue)
+          .label,
+      ];
+    } else {
+      return false;
+    }
+  };
 
   setOpenDropdown = () => {
     this.setState({openDropdown: true});

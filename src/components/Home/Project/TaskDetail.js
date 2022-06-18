@@ -104,7 +104,7 @@ class TaskDetail extends Component {
     this.props.navigation.navigate('Task', this.props.route.params.task_params);
   };
 
-  onEditTaskName = async () => {
+  onEditTaskName = () => {
     let task_name_ref = React.createRef();
     Global._showModal({
       content: (
@@ -142,7 +142,7 @@ class TaskDetail extends Component {
     });
   };
 
-  onEditTaskProject = async () => {
+  onEditTaskProject = () => {
     let task_project_ref = React.createRef();
     Global._showModal({
       content: (
@@ -209,6 +209,82 @@ class TaskDetail extends Component {
         />
       ),
     });
+  };
+
+  onEditTaskProjectPhase = async () => {
+    if (this.state.task_infomation.project_id) {
+      let task_project_phase_ref = React.createRef();
+
+      Global._showModal({
+        content: (
+          <ModalEditTaskInfo
+            hideModal={() => {
+              Global._hideModal({callback: null});
+            }}
+            updateInfo={async () => {
+              if (
+                !this.state.task_infomation.project_phase_id ||
+                task_project_phase_ref.current.value()[0] !==
+                  this.state.task_infomation.project_phase_id[0]
+              ) {
+                let changeTaskProjectPhase =
+                  await projectManageBusiness.changeTaskProjectPhase(
+                    userInfo.uid,
+                    userInfo.lang,
+                    userInfo.tz,
+                    this.state.task_id,
+                    task_project_phase_ref.current.value()[0],
+                  );
+                if (changeTaskProjectPhase.status === 'success') {
+                  this.setState({
+                    task_infomation: {
+                      ...this.state.task_infomation,
+                      project_phase_id: task_project_phase_ref.current.value(),
+                    },
+                  });
+                }
+              }
+            }}
+            modalContent={
+              <TaskEditDropdownPicker
+                label={'Task Project Phase'}
+                ref={task_project_phase_ref}
+                currentValue={
+                  this.state.task_infomation.project_phase_id
+                    ? this.state.task_infomation.project_phase_id?.[0]
+                    : false
+                }
+                getListItem={async () => {
+                  let getListProjectPhase =
+                    await projectManageBusiness.getProjectPhase(
+                      userInfo.uid,
+                      userInfo.lang,
+                      userInfo.tz,
+                      this.state.task_infomation.project_id?.[0],
+                    );
+                  if (getListProjectPhase.status === 'success') {
+                    let listItem = getListProjectPhase.data.map(item => ({
+                      value: item[0],
+                      label: item[1],
+                    }));
+                    listItem.unshift({value: false, label: '(None)'});
+                    return listItem;
+                  } else {
+                    return {
+                      value: this.state.task_infomation.project_phase_id
+                        ? this.state.task_infomation.project_phase_id?.[0]
+                        : false,
+                      label: 'Error!!!',
+                    };
+                  }
+                }}
+              />
+            }
+            label={'Task Project Phase'}
+          />
+        ),
+      });
+    }
   };
 
   render() {
@@ -308,7 +384,9 @@ class TaskDetail extends Component {
                   }>
                   Project Phase
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskProjectPhase}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.project_phase_id?.[1] ?? ''}
                   </Text>
