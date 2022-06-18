@@ -42,6 +42,7 @@ class Task extends Component {
 
   componentDidMount = async () => {
     const unsubscribe = this.props.navigation.addListener('focus', async () => {
+      this.setState({allTasks: []})
       let result = await projectManageBusiness.getStage(
         userInfo.uid,
         userInfo.lang,
