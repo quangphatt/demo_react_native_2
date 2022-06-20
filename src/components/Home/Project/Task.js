@@ -108,30 +108,6 @@ class Task extends Component {
       task_params: this.props.route.params,
     });
 
-  onChangeTaskPriority = async (newPriority, stage_id, task_id) => {
-    let result = await projectManageBusiness.changeTaskPriority(
-      userInfo.uid,
-      userInfo.lang,
-      userInfo.tz,
-      task_id,
-      newPriority,
-    );
-    if (result.status === 'success') {
-      let res = this.state.allTasks;
-
-      let stageIndex = res.findIndex(item => item.stage_id === stage_id);
-      let taskIndex = res[stageIndex].tasks.findIndex(
-        item => item.id === task_id,
-      );
-
-      res[stageIndex].tasks[taskIndex].priority = newPriority.toString();
-
-      this.setState({
-        allTasks: res,
-      });
-    }
-  };
-
   setFold = async (stage_id, value) => {
     let res = this.state.allTasks;
     let stage_index = res.findIndex(item => item.stage_id === stage_id);
@@ -284,13 +260,7 @@ class Task extends Component {
                                   rating={parseInt(itemTask.priority)}
                                   starSize={18}
                                   fullStarColor={'#f0c735'}
-                                  selectedStar={rating => {
-                                    this.onChangeTaskPriority(
-                                      rating,
-                                      item.stage_id,
-                                      itemTask.id,
-                                    );
-                                  }}
+                                  selectedStar={rating => {}}
                                 />
                               </View>
                               {itemTask.date_deadline && (

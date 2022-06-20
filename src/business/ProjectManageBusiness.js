@@ -167,7 +167,6 @@ class ProjectManageBusiness extends Service {
             'supporter_id',
             'creator_id',
             'need_install',
-            'milestone_id',
             'date_deadline',
             'task_level_id',
             'priority',
@@ -178,9 +177,6 @@ class ProjectManageBusiness extends Service {
             'effort_driven',
             'manually_scheduled',
             'option',
-            'product_backlog_id',
-            'sprint_id',
-            'release_id',
             'type_id',
             'date_finished',
           ],
@@ -318,6 +314,250 @@ class ProjectManageBusiness extends Service {
         },
         method: 'name_search',
         model: 'project.phase',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  getTaskSupporter = (uid, lang, tz) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [],
+        kwargs: {
+          args: [],
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+          limit: 10,
+        },
+        method: 'name_search',
+        model: 'res.partner',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskSupporter = (uid, lang, tz, task_id, supporter_id) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            supporter_id: supporter_id,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  getTaskLevel = (uid, lang, tz) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [],
+        kwargs: {
+          args: [],
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+          limit: 10,
+        },
+        method: 'name_search',
+        model: 'task.level',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskLevel = (uid, lang, tz, task_id, task_level_id) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            task_level_id: task_level_id,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskSchedulingMode = (uid, lang, tz, task_id, scheduling_mode) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            scheduling_mode: scheduling_mode,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskContraintType = (uid, lang, tz, task_id, constraint_type) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            constraint_type: constraint_type,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskEffortDriven=(uid, lang, tz, task_id, effort_driven)=>{
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            effort_driven: effort_driven,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  }
+
+  changeTaskManuallyScheduled=(uid, lang, tz, task_id, manually_scheduled)=>{
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            manually_scheduled: manually_scheduled,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  }
+
+  changeTaskOption = (uid, lang, tz, task_id, option) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            option: option,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  getTaskType = (uid, lang, tz) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [],
+        kwargs: {
+          args: [['task_ok', '=', true]],
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+          limit: 10,
+        },
+        method: 'name_search',
+        model: 'project.type',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskType = (uid, lang, tz, task_id, type_id) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            type_id: type_id,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
       };
       this.post(params).then(resolve).catch(reject);
     });

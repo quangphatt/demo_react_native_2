@@ -98,6 +98,51 @@ class TaskDetail extends Component {
         });
       }
     }
+
+    //Scheduling Mode List
+    this.setState({
+      task_infomation: {
+        ...this.state.task_infomation,
+        scheduling_mode_list: [
+          [false, '(None)'],
+          ['Normal', 'Normal'],
+          ['FixedDuration', 'Fixed Duration'],
+          ['FixedEffort', 'Fixed Effort'],
+          ['FixedUnits', 'Fixed Units'],
+        ],
+        constraint_type_list: [
+          [false, '(None)'],
+          ['muststarton', 'Must start on'],
+          ['mustfinishon', 'Must finish on'],
+          ['startnoearlierthan', 'Start no earlier than'],
+          ['startnolaterthan', 'Start no later than'],
+          ['finishnoearlierthan', 'Finish no earlier than'],
+          ['finishnolaterthan', 'Finish no later than'],
+        ],
+        option_list: [
+          ['task', 'Task'],
+          ['issue', 'Issue'],
+        ],
+      },
+    });
+
+    this.setState({
+      task_infomation: {
+        ...this.state.task_infomation,
+        scheduling_mode_label:
+          this.state.task_infomation.scheduling_mode_list.find(
+            item => item[0] === this.state.task_infomation.scheduling_mode,
+          )[1] || false,
+        constraint_type_label:
+          this.state.task_infomation.constraint_type_list.find(
+            item => item[0] === this.state.task_infomation.constraint_type,
+          )[1] || false,
+        option_label:
+          this.state.task_infomation.option_list.find(
+            item => item[0] === this.state.task_infomation.option,
+          )[1] || false,
+      },
+    });
   };
 
   BackToTaskScreen = () => {
@@ -195,12 +240,14 @@ class TaskDetail extends Component {
                     label: item.name,
                   }));
                 } else {
-                  return {
-                    value: this.state.task_infomation.project_id
-                      ? this.state.task_infomation.project_id?.[0]
-                      : false,
-                    label: 'Error!!!',
-                  };
+                  return [
+                    {
+                      value: this.state.task_infomation.project_id
+                        ? this.state.task_infomation.project_id?.[0]
+                        : false,
+                      label: 'Error!!!',
+                    },
+                  ];
                 }
               }}
             />
@@ -211,7 +258,7 @@ class TaskDetail extends Component {
     });
   };
 
-  onEditTaskProjectPhase = async () => {
+  onEditTaskProjectPhase = () => {
     if (this.state.task_infomation.project_id) {
       let task_project_phase_ref = React.createRef();
 
@@ -270,12 +317,14 @@ class TaskDetail extends Component {
                     listItem.unshift({value: false, label: '(None)'});
                     return listItem;
                   } else {
-                    return {
-                      value: this.state.task_infomation.project_phase_id
-                        ? this.state.task_infomation.project_phase_id?.[0]
-                        : false,
-                      label: 'Error!!!',
-                    };
+                    return [
+                      {
+                        value: this.state.task_infomation.project_phase_id
+                          ? this.state.task_infomation.project_phase_id?.[0]
+                          : false,
+                        label: 'Error!!!',
+                      },
+                    ];
                   }
                 }}
               />
@@ -285,6 +334,447 @@ class TaskDetail extends Component {
         ),
       });
     }
+  };
+
+  onEditTaskSupporter = () => {
+    let task_supporter_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.supporter_id ||
+              task_supporter_ref.current.value()[0] !==
+                this.state.task_infomation.supporter_id[0]
+            ) {
+              let changeTaskSupporter =
+                await projectManageBusiness.changeTaskSupporter(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  task_supporter_ref.current.value()[0],
+                );
+              if (changeTaskSupporter.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    supporter_id: task_supporter_ref.current.value(),
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Supporter'}
+              ref={task_supporter_ref}
+              currentValue={
+                this.state.task_infomation.supporter_id
+                  ? this.state.task_infomation.supporter_id?.[0]
+                  : false
+              }
+              getListItem={async () => {
+                let getListSupporter =
+                  await projectManageBusiness.getTaskSupporter(
+                    userInfo.uid,
+                    userInfo.lang,
+                    userInfo.tz,
+                  );
+                if (getListSupporter.status === 'success') {
+                  let listItem = getListSupporter.data.map(item => ({
+                    value: item[0],
+                    label: item[1],
+                  }));
+                  listItem.unshift({value: false, label: '(None)'});
+                  return listItem;
+                } else {
+                  return [
+                    {
+                      value: this.state.task_infomation.supporter_id
+                        ? this.state.task_infomation.supporter_id?.[0]
+                        : false,
+                      label: 'Error!!!',
+                    },
+                  ];
+                }
+              }}
+            />
+          }
+          label={'Task Supporter'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskLevel = () => {
+    let task_level_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.task_level_id ||
+              task_level_ref.current.value()[0] !==
+                this.state.task_infomation.task_level_id[0]
+            ) {
+              let changeTaskLevel = await projectManageBusiness.changeTaskLevel(
+                userInfo.uid,
+                userInfo.lang,
+                userInfo.tz,
+                this.state.task_id,
+                task_level_ref.current.value()[0],
+              );
+              if (changeTaskLevel.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    task_level_id: task_level_ref.current.value(),
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Level'}
+              ref={task_level_ref}
+              currentValue={
+                this.state.task_infomation.task_level_id
+                  ? this.state.task_infomation.task_level_id?.[0]
+                  : false
+              }
+              getListItem={async () => {
+                let getListTaskLevel = await projectManageBusiness.getTaskLevel(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                );
+                if (getListTaskLevel.status === 'success') {
+                  let listItem = getListTaskLevel.data.map(item => ({
+                    value: item[0],
+                    label: item[1],
+                  }));
+                  listItem.unshift({value: false, label: '(None)'});
+                  return listItem;
+                } else {
+                  return [
+                    {
+                      value: this.state.task_infomation.task_level_id
+                        ? this.state.task_infomation.task_level_id?.[0]
+                        : false,
+                      label: 'Error!!!',
+                    },
+                  ];
+                }
+              }}
+            />
+          }
+          label={'Task Level'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskPriority = async rating => {
+    let result = await projectManageBusiness.changeTaskPriority(
+      userInfo.uid,
+      userInfo.lang,
+      userInfo.tz,
+      this.state.task_id,
+      rating,
+    );
+    if (result.status === 'success') {
+      this.setState({
+        task_infomation: {
+          ...this.state.task_infomation,
+          priority: rating,
+        },
+      });
+    }
+  };
+
+  onEditTaskSchedulingMode = () => {
+    let task_scheduling_mode_ref = React.createRef();
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.scheduling_mode ||
+              task_scheduling_mode_ref.current.value()[0] !==
+                this.state.task_infomation.scheduling_mode
+            ) {
+              let changeTaskSchedulingMode =
+                await projectManageBusiness.changeTaskSchedulingMode(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  task_scheduling_mode_ref.current.value()[0],
+                );
+              if (changeTaskSchedulingMode.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    scheduling_mode:
+                      task_scheduling_mode_ref.current.value()[0],
+                    scheduling_mode_label:
+                      task_scheduling_mode_ref.current.value()[1],
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Scheduling Mode'}
+              ref={task_scheduling_mode_ref}
+              currentValue={this.state.task_infomation.scheduling_mode}
+              getListItem={() => {
+                return this.state.task_infomation.scheduling_mode_list.map(
+                  item => ({
+                    value: item[0],
+                    label: item[1],
+                  }),
+                );
+              }}
+            />
+          }
+          label={'Task Scheduling Mode'}
+        />
+      ),
+    });
+  };
+
+  onEditConstraintType = () => {
+    let task_constraint_type_ref = React.createRef();
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.constraint_type ||
+              task_constraint_type_ref.current.value()[0] !==
+                this.state.task_infomation.constraint_type
+            ) {
+              let changeTaskContraintType =
+                await projectManageBusiness.changeTaskContraintType(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  task_constraint_type_ref.current.value()[0],
+                );
+              if (changeTaskContraintType.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    constraint_type:
+                      task_constraint_type_ref.current.value()[0],
+                    constraint_type_label:
+                      task_constraint_type_ref.current.value()[1],
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Constraint Type'}
+              ref={task_constraint_type_ref}
+              currentValue={this.state.task_infomation.constraint_type}
+              getListItem={() => {
+                return this.state.task_infomation.constraint_type_list.map(
+                  item => ({
+                    value: item[0],
+                    label: item[1],
+                  }),
+                );
+              }}
+            />
+          }
+          label={'Task Constraint Type'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskEffortDriven = async () => {
+    let changeTaskEffortDriven =
+      await projectManageBusiness.changeTaskEffortDriven(
+        userInfo.uid,
+        userInfo.lang,
+        userInfo.tz,
+        this.state.task_id,
+        !this.state.task_infomation.effort_driven,
+      );
+    if (changeTaskEffortDriven.status === 'success') {
+      this.setState({
+        task_infomation: {
+          ...this.state.task_infomation,
+          effort_driven: !this.state.task_infomation.effort_driven,
+        },
+      });
+    }
+  };
+
+  onEditTaskManuallyScheduled = async () => {
+    let changeTaskManuallyScheduled =
+      await projectManageBusiness.changeTaskManuallyScheduled(
+        userInfo.uid,
+        userInfo.lang,
+        userInfo.tz,
+        this.state.task_id,
+        !this.state.task_infomation.manually_scheduled,
+      );
+    if (changeTaskManuallyScheduled.status === 'success') {
+      this.setState({
+        task_infomation: {
+          ...this.state.task_infomation,
+          manually_scheduled: !this.state.task_infomation.manually_scheduled,
+        },
+      });
+    }
+  };
+
+  onEditTaskOption = () => {
+    let task_option_ref = React.createRef();
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.option ||
+              task_option_ref.current.value()[0] !==
+                this.state.task_infomation.option
+            ) {
+              let changeTaskOption =
+                await projectManageBusiness.changeTaskOption(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  task_option_ref.current.value()[0],
+                );
+              if (changeTaskOption.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    option: task_option_ref.current.value()[0],
+                    option_label: task_option_ref.current.value()[1],
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Option'}
+              ref={task_option_ref}
+              currentValue={this.state.task_infomation.option}
+              getListItem={() => {
+                return this.state.task_infomation.option_list.map(item => ({
+                  value: item[0],
+                  label: item[1],
+                }));
+              }}
+            />
+          }
+          label={'Task Option'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskType = () => {
+    let task_type_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.type_id ||
+              task_type_ref.current.value()[0] !==
+                this.state.task_infomation.type_id[0]
+            ) {
+              let changeTasktype = await projectManageBusiness.changeTaskType(
+                userInfo.uid,
+                userInfo.lang,
+                userInfo.tz,
+                this.state.task_id,
+                task_type_ref.current.value()[0],
+              );
+              if (changeTasktype.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    type_id: task_type_ref.current.value(),
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Type'}
+              ref={task_type_ref}
+              currentValue={
+                this.state.task_infomation.type_id
+                  ? this.state.task_infomation.type_id?.[0]
+                  : false
+              }
+              getListItem={async () => {
+                let getListType = await projectManageBusiness.getTaskType(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                );
+                if (getListType.status === 'success') {
+                  let listItem = getListType.data.map(item => ({
+                    value: item[0],
+                    label: item[1],
+                  }));
+                  listItem.unshift({value: false, label: '(None)'});
+                  return listItem;
+                } else {
+                  return [
+                    {
+                      value: this.state.task_infomation.type_id
+                        ? this.state.task_infomation.type_id?.[0]
+                        : false,
+                      label: 'Error!!!',
+                    },
+                  ];
+                }
+              }}
+            />
+          }
+          label={'Task Type'}
+        />
+      ),
+    });
   };
 
   render() {
@@ -506,7 +996,9 @@ class TaskDetail extends Component {
                   }>
                   Supporter
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskSupporter}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.supporter_id?.[1] ?? ''}
                   </Text>
@@ -543,21 +1035,6 @@ class TaskDetail extends Component {
               <View style={styles.task_info_item}>
                 <Text
                   style={
-                    this.state.task_infomation.milestone_id
-                      ? styles.task_info_item_label
-                      : styles.task_info_item_label_disabled
-                  }>
-                  Milestones
-                </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text_blue}>
-                    {this.state.task_infomation.milestone_id?.[1] ?? ''}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.task_info_item}>
-                <Text
-                  style={
                     this.state.task_infomation.date_deadline
                       ? styles.task_info_item_label
                       : styles.task_info_item_label_disabled
@@ -584,7 +1061,9 @@ class TaskDetail extends Component {
                   }>
                   Task Level
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskLevel}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.task_level_id?.[1] ?? ''}
                   </Text>
@@ -599,7 +1078,7 @@ class TaskDetail extends Component {
                     rating={parseInt(this.state.task_infomation.priority)}
                     starSize={18}
                     fullStarColor={'#f0c735'}
-                    selectedStar={rating => {}}
+                    selectedStar={rating => this.onEditTaskPriority(rating)}
                   />
                 </View>
               </View>
@@ -635,9 +1114,13 @@ class TaskDetail extends Component {
                   }>
                   Scheduling Mode
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskSchedulingMode}>
                   <Text style={styles.task_info_item_value_text}>
-                    {this.state.task_infomation.scheduling_mode ?? ''}
+                    {this.state.task_infomation.scheduling_mode
+                      ? this.state.task_infomation.scheduling_mode_label
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -650,9 +1133,13 @@ class TaskDetail extends Component {
                   }>
                   Constraint Type
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditConstraintType}>
                   <Text style={styles.task_info_item_value_text}>
-                    {this.state.task_infomation.constraint_type ?? ''}
+                    {this.state.task_infomation.constraint_type
+                      ? this.state.task_infomation.constraint_type_label
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -678,25 +1165,29 @@ class TaskDetail extends Component {
               </View>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>Effort Driven</Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  {this.state.task_infomation.effort_driven ? (
-                    <Feather name={'check-square'} size={15} color={'#00f'} />
-                  ) : (
-                    <Feather name={'square'} size={15} color={'#000'} />
-                  )}
-                </TouchableOpacity>
+                <View style={styles.task_info_item_value}>
+                  <TouchableOpacity onPress={this.onEditTaskEffortDriven}>
+                    {this.state.task_infomation.effort_driven ? (
+                      <Feather name={'check-square'} size={15} color={'#00f'} />
+                    ) : (
+                      <Feather name={'square'} size={15} color={'#000'} />
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>
                   Manually Scheduled
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  {this.state.task_infomation.manually_scheduled ? (
-                    <Feather name={'check-square'} size={15} color={'#00f'} />
-                  ) : (
-                    <Feather name={'square'} size={15} color={'#000'} />
-                  )}
-                </TouchableOpacity>
+                <View style={styles.task_info_item_value}>
+                  <TouchableOpacity onPress={this.onEditTaskManuallyScheduled}>
+                    {this.state.task_infomation.manually_scheduled ? (
+                      <Feather name={'check-square'} size={15} color={'#00f'} />
+                    ) : (
+                      <Feather name={'square'} size={15} color={'#000'} />
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
               <View style={styles.task_info_item}>
                 <Text
@@ -707,54 +1198,11 @@ class TaskDetail extends Component {
                   }>
                   Option
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskOption}>
                   <Text style={styles.task_info_item_value_text}>
-                    {this.state.task_infomation.option}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.task_info_item}>
-                <Text
-                  style={
-                    this.state.task_infomation.product_backlog_id
-                      ? styles.task_info_item_label
-                      : styles.task_info_item_label_disabled
-                  }>
-                  Request
-                </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text_blue}>
-                    {this.state.task_infomation.product_backlog_id?.[1] ?? ''}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.task_info_item}>
-                <Text
-                  style={
-                    this.state.task_infomation.sprint_id
-                      ? styles.task_info_item_label
-                      : styles.task_info_item_label_disabled
-                  }>
-                  Sprint
-                </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text_blue}>
-                    {this.state.task_infomation.sprint_id?.[1] ?? ''}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.task_info_item}>
-                <Text
-                  style={
-                    this.state.task_infomation.release_id
-                      ? styles.task_info_item_label
-                      : styles.task_info_item_label_disabled
-                  }>
-                  Release
-                </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text_blue}>
-                    {this.state.task_infomation.release_id?.[1] ?? ''}
+                    {this.state.task_infomation.option_label}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -767,7 +1215,9 @@ class TaskDetail extends Component {
                   }>
                   Type
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskType}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.type_id?.[1] ?? ''}
                   </Text>
