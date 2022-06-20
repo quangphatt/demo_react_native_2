@@ -14,45 +14,57 @@ import authBusiness from '~/business/AuthBusiness';
 import {userInfo} from '~/utils/config';
 import {avatarURL} from '~/service/configURL';
 
-const langList = [
-  {
-    value: 'vi_VN',
-    label: 'Tiếng Việt',
-    icon: () => (
-      <Image
-        source={require('~/assets/images/vie_icon.png')}
-        style={styles.dropdown_icon}
-      />
-    ),
-  },
-  {
-    value: 'en_US',
-    label: 'English',
-    icon: () => (
-      <Image
-        source={require('~/assets/images/eng_icon.png')}
-        style={styles.dropdown_icon}
-      />
-    ),
-  },
-];
-
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
       currentCompanyId: userInfo.currentCompanyId,
+      companyList: userInfo.allowedCompany.map(item => ({
+        value: item[0],
+        label: item[1],
+        icon: () => (
+          <Image
+            source={
+              {
+                uri:
+                  'https://uat.xboss.com/web/image/res.company/' +
+                  item[0] +
+                  '/logo/100x100',
+              } || require('~/assets/images/user.png')
+            }
+            style={styles.dropdown_icon}
+          />
+        ),
+      })),
       openCompany: false,
       currentLanguage: userInfo.lang,
+      languageList: [
+        {
+          value: 'vi_VN',
+          label: 'Tiếng Việt',
+          icon: () => (
+            <Image
+              source={require('~/assets/images/vie_icon.png')}
+              style={styles.dropdown_icon}
+            />
+          ),
+        },
+        {
+          value: 'en_US',
+          label: 'English',
+          icon: () => (
+            <Image
+              source={require('~/assets/images/eng_icon.png')}
+              style={styles.dropdown_icon}
+            />
+          ),
+        },
+      ],
       openLanguage: false,
     };
 
     this.setOpenCompany = this.setOpenCompany.bind(this);
     this.setOpenLanguage = this.setOpenLanguage.bind(this);
-    this.updateLanguageValue = this.updateLanguageValue.bind(this);
-
-    this.itemCompany = [];
-    this.languageValue = '';
   }
 
   setOpenCompany(openCompany) {
@@ -82,7 +94,6 @@ class Profile extends Component {
         this.setState({
           currentLanguage: userInfo.lang,
         });
-        this.updateLanguageValue();
       } else {
         // If Get Info Fail
       }
@@ -102,34 +113,6 @@ class Profile extends Component {
         // If Get Info Fail
       }
     }
-  };
-
-  componentDidMount = () => {
-    this.itemCompany = userInfo.allowedCompany.map(item => ({
-      value: item[0],
-      label: item[1],
-      icon: () => (
-        <Image
-          source={
-            {
-              uri:
-                'https://uat.xboss.com/web/image/res.company/' +
-                item[0] +
-                '/logo/100x100',
-            } || require('~/assets/images/user.png')
-          }
-          style={styles.dropdown_icon}
-        />
-      ),
-    }));
-
-    this.updateLanguageValue();
-  };
-
-  updateLanguageValue = () => {
-    this.languageValue = langList.find(
-      item => item.value === userInfo.lang,
-    ).value;
   };
 
   onLogout = async () => {
@@ -184,7 +167,7 @@ class Profile extends Component {
 
         <View style={styles.dropdown_wrapper}>
           <DropDownPicker
-            items={this.itemCompany}
+            items={this.state.companyList}
             value={this.state.currentCompanyId}
             open={this.state.openCompany}
             setOpen={this.setOpenCompany}
@@ -197,8 +180,8 @@ class Profile extends Component {
             arrowIconStyle={styles.arrowIconStyle}
           />
           <DropDownPicker
-            items={langList}
-            value={this.languageValue}
+            items={this.state.languageList}
+            value={this.state.currentLanguage}
             open={this.state.openLanguage}
             setOpen={this.setOpenLanguage}
             setValue={this.onChangeLanguage}
@@ -277,7 +260,7 @@ const styles = StyleSheet.create({
   dropDownPicker_list: {},
   labelStyle: {
     fontSize: 16,
-    color:'#000',
+    color: '#000',
     marginLeft: 5,
   },
   arrowIconStyle: {
