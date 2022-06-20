@@ -15,6 +15,7 @@ import Global, {withGlobalContext} from '~/provider/GlobalContext';
 import ModalEditTaskInfo from '~/modal/ModalEditTaskInfo/ModalEditTaskInfo';
 import TaskEditText from '~/modal/ModalEditTaskInfo/TaskEditText';
 import TaskEditDropdownPicker from '~/modal/ModalEditTaskInfo/TaskEditDropdownPicker';
+import TaskEditDatetime from '~/modal/ModalEditTaskInfo/TaskEditDatetime';
 import StarRating from 'react-native-star-rating';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
 import {userInfo} from '~/utils/config';
@@ -334,6 +335,33 @@ class TaskDetail extends Component {
         ),
       });
     }
+  };
+
+  onEditStartDate = () => {
+    let task_start_date_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            console.log(task_start_date_ref.current.value())
+          }}
+          modalContent={
+            <TaskEditDatetime
+              label={'Task Supporter'}
+              currentValue={moment(
+                this.state.task_infomation.planned_date_begin,
+              ).toDate()}
+              ref={task_start_date_ref}
+            />
+          }
+          label={'Start Date'}
+        />
+      ),
+    });
   };
 
   onEditTaskSupporter = () => {
@@ -948,7 +976,9 @@ class TaskDetail extends Component {
                   }>
                   Start Date
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditStartDate}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.planned_date_begin
                       ? moment
