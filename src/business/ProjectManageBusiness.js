@@ -362,6 +362,29 @@ class ProjectManageBusiness extends Service {
     });
   };
 
+  changeTaskDeadline = (uid, lang, tz, task_id, date_deadline) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            date_deadline: date_deadline,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
   getTaskLevel = (uid, lang, tz) => {
     return new Promise((resolve, reject) => {
       let params = {
@@ -451,7 +474,7 @@ class ProjectManageBusiness extends Service {
     });
   };
 
-  changeTaskEffortDriven=(uid, lang, tz, task_id, effort_driven)=>{
+  changeTaskEffortDriven = (uid, lang, tz, task_id, effort_driven) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [
@@ -472,9 +495,15 @@ class ProjectManageBusiness extends Service {
       };
       this.post(params).then(resolve).catch(reject);
     });
-  }
+  };
 
-  changeTaskManuallyScheduled=(uid, lang, tz, task_id, manually_scheduled)=>{
+  changeTaskManuallyScheduled = (
+    uid,
+    lang,
+    tz,
+    task_id,
+    manually_scheduled,
+  ) => {
     return new Promise((resolve, reject) => {
       let params = {
         args: [
@@ -495,7 +524,7 @@ class ProjectManageBusiness extends Service {
       };
       this.post(params).then(resolve).catch(reject);
     });
-  }
+  };
 
   changeTaskOption = (uid, lang, tz, task_id, option) => {
     return new Promise((resolve, reject) => {
