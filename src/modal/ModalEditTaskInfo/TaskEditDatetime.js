@@ -14,8 +14,7 @@ class TaskEditDatetime extends Component {
     };
   }
 
-  value = () =>
-    this.state.value && moment(this.state.value).format('YYYY-MM-DD HH:mm:ss');
+  value = () => this.state.value;
 
   onShowDate = () => {
     this.setState({
