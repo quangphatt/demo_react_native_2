@@ -342,6 +342,37 @@ class ProjectManageBusiness extends Service {
     });
   };
 
+  changeTaskPlanningDate = (
+    uid,
+    lang,
+    tz,
+    task_id,
+    planned_date_begin,
+    planned_date_end,
+  ) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            planned_date_begin: planned_date_begin,
+            planned_date_end: planned_date_end,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
   changeTaskEffort = (uid, lang, tz, task_id, effort) => {
     return new Promise((resolve, reject) => {
       let params = {
@@ -504,6 +535,29 @@ class ProjectManageBusiness extends Service {
           [task_id],
           {
             constraint_type: constraint_type,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskConstraintDate = (uid, lang, tz, task_id, constraint_date) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            constraint_date: constraint_date,
           },
         ],
         kwargs: {

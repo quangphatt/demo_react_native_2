@@ -16,6 +16,7 @@ import ModalEditTaskInfo from '~/modal/ModalEditTaskInfo/ModalEditTaskInfo';
 import TaskEditText from '~/modal/ModalEditTaskInfo/TaskEditText';
 import TaskEditDropdownPicker from '~/modal/ModalEditTaskInfo/TaskEditDropdownPicker';
 import TaskEditDatetime from '~/modal/ModalEditTaskInfo/TaskEditDatetime';
+import TaskEditDate from '~/modal/ModalEditTaskInfo/TaskEditDate';
 import StarRating from 'react-native-star-rating';
 import projectManageBusiness from '~/business/ProjectManageBusiness';
 import {userInfo} from '~/utils/config';
@@ -378,7 +379,76 @@ class TaskDetail extends Component {
     });
   };
 
-  onEditStartDate = () => {};
+  onEditPlanningDate = () => {
+    let task_planning_start_date_ref = React.createRef();
+    let task_planning_end_date_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            let start_date = task_planning_start_date_ref.current.value();
+            let end_date = task_planning_end_date_ref.current.value();
+
+            if (start_date && end_date) {
+              if (start_date.getTime() <= end_date.getTime()) {
+                let changeTaskPlanningDate =
+                  await projectManageBusiness.changeTaskPlanningDate(
+                    userInfo.uid,
+                    userInfo.lang,
+                    userInfo.tz,
+                    this.state.task_id,
+                    start_date,
+                    end_date,
+                  );
+                if (changeTaskPlanningDate.status === 'success') {
+                  this.setState({
+                    task_infomation: {
+                      ...this.state.task_infomation,
+                      planned_date_begin: start_date,
+                      planned_date_end: end_date,
+                    },
+                  });
+                }
+              }
+            }
+          }}
+          modalContent={
+            <View>
+              <Text style={{color: '#000', fontSize: 14}}>Start Date</Text>
+              <TaskEditDatetime
+                label={'Start Date'}
+                currentValue={
+                  this.state.task_infomation.planned_date_begin &&
+                  moment
+                    .utc(this.state.task_infomation.planned_date_begin)
+                    .tz(userInfo.tz)
+                    .toDate()
+                }
+                ref={task_planning_start_date_ref}
+              />
+              <Text style={{color: '#000', fontSize: 14}}>End Date</Text>
+              <TaskEditDatetime
+                label={'End Date'}
+                currentValue={
+                  this.state.task_infomation.planned_date_end &&
+                  moment
+                    .utc(this.state.task_infomation.planned_date_end)
+                    .tz(userInfo.tz)
+                    .toDate()
+                }
+                ref={task_planning_end_date_ref}
+              />
+            </View>
+          }
+          label={'Planned Date'}
+        />
+      ),
+    });
+  };
 
   onEditTaskEffort = () => {
     let task_effort_ref = React.createRef();
@@ -742,6 +812,50 @@ class TaskDetail extends Component {
             />
           }
           label={'Task Constraint Type'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskConstraintDate = () => {
+    let task_constraint_date_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            let changeTaskConstraintDate =
+              await projectManageBusiness.changeTaskConstraintDate(
+                userInfo.uid,
+                userInfo.lang,
+                userInfo.tz,
+                this.state.task_id,
+                task_constraint_date_ref.current.value(),
+              );
+
+            if (changeTaskConstraintDate.status === 'success') {
+              this.setState({
+                task_infomation: {
+                  ...this.state.task_infomation,
+                  constraint_date: task_constraint_date_ref.current.value(),
+                },
+              });
+            }
+          }}
+          modalContent={
+            <TaskEditDate
+              label={'Constraint Date'}
+              currentValue={
+                this.state.task_infomation.constraint_date &&
+                moment(this.state.task_infomation.constraint_date).toDate()
+              }
+              ref={task_constraint_date_ref}
+            />
+          }
+          label={'Constraint Date'}
         />
       ),
     });
@@ -1132,7 +1246,7 @@ class TaskDetail extends Component {
                 </Text>
                 <TouchableOpacity
                   style={styles.task_info_item_value}
-                  onPress={this.onEditStartDate}>
+                  onPress={this.onEditPlanningDate}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.planned_date_begin
                       ? moment
@@ -1152,7 +1266,9 @@ class TaskDetail extends Component {
                   }>
                   End Date
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditPlanningDate}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.planned_date_end
                       ? moment
@@ -1340,7 +1456,9 @@ class TaskDetail extends Component {
                   }>
                   Constraint Date
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskConstraintDate}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.constraint_date
                       ? moment

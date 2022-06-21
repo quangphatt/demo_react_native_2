@@ -4,17 +4,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import 'moment-timezone';
 
-class TaskEditDatetime extends Component {
+class TaskEditDate extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showDate: false,
-      showTime: false,
       value: this.props.currentValue,
     };
   }
 
-  value = () => this.state.value;
+  value = () =>
+    this.state.value ? moment(this.state.value).format('YYYY-MM-DD') : false;
 
   onShowDate = () => {
     this.setState({
@@ -22,23 +22,10 @@ class TaskEditDatetime extends Component {
     });
   };
 
-  onShowTime = () => {
-    this.setState({
-      showTime: true,
-    });
-  };
-
   onChangeValueDate = (event, selectedDate) => {
     this.setState({
       value: selectedDate,
       showDate: false,
-    });
-  };
-
-  onChangeValueTime = (event, selectedTime) => {
-    this.setState({
-      value: selectedTime,
-      showTime: false,
     });
   };
 
@@ -52,7 +39,7 @@ class TaskEditDatetime extends Component {
         <View
           style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'space-around',
             height: 30,
           }}>
           <TouchableOpacity
@@ -67,17 +54,6 @@ class TaskEditDatetime extends Component {
             <Text style={{color: '#fff', fontSize: 15}}>Pick Date</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={this.onShowTime}
-            style={{
-              backgroundColor: '#0f0',
-              width: '30%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 5,
-            }}>
-            <Text style={{color: '#000', fontSize: 15}}>Pick Time</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             onPress={this.onClearValue}
             style={{
               backgroundColor: '#f24235',
@@ -89,6 +65,7 @@ class TaskEditDatetime extends Component {
             <Text style={{color: '#000'}}>Clear</Text>
           </TouchableOpacity>
         </View>
+
         <View
           style={{
             margin: 10,
@@ -101,7 +78,7 @@ class TaskEditDatetime extends Component {
           }}>
           <Text style={{color: '#000'}}>
             {this.state.value
-              ? moment(this.state.value).format('DD/MM/YYYY HH:mm:ss')
+              ? moment(this.state.value).format('DD/MM/YYYY')
               : '(None)'}
           </Text>
         </View>
@@ -114,17 +91,9 @@ class TaskEditDatetime extends Component {
             onChange={this.onChangeValueDate}
           />
         )}
-        {this.state.showTime && (
-          <DateTimePicker
-            testID="timePicker"
-            value={this.state.value || new Date()}
-            mode={'time'}
-            onChange={this.onChangeValueTime}
-          />
-        )}
       </View>
     );
   }
 }
 
-export default TaskEditDatetime;
+export default TaskEditDate;
