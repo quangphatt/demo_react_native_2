@@ -337,32 +337,7 @@ class TaskDetail extends Component {
     }
   };
 
-  onEditStartDate = () => {
-    let task_start_date_ref = React.createRef();
-
-    Global._showModal({
-      content: (
-        <ModalEditTaskInfo
-          hideModal={() => {
-            Global._hideModal({callback: null});
-          }}
-          updateInfo={async () => {
-            console.log(task_start_date_ref.current.value())
-          }}
-          modalContent={
-            <TaskEditDatetime
-              label={'Task Supporter'}
-              currentValue={moment(
-                this.state.task_infomation.planned_date_begin,
-              ).toDate()}
-              ref={task_start_date_ref}
-            />
-          }
-          label={'Start Date'}
-        />
-      ),
-    });
-  };
+  onEditStartDate = () => {};
 
   onEditTaskSupporter = () => {
     let task_supporter_ref = React.createRef();
@@ -434,6 +409,50 @@ class TaskDetail extends Component {
             />
           }
           label={'Task Supporter'}
+        />
+      ),
+    });
+  };
+
+  onEditTaskDeadline = () => {
+    let task_deadline_date_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            let changeTaskDeadline =
+              await projectManageBusiness.changeTaskDeadline(
+                userInfo.uid,
+                userInfo.lang,
+                userInfo.tz,
+                this.state.task_id,
+                task_deadline_date_ref.current.value(),
+              );
+
+            if (changeTaskDeadline.status === 'success') {
+              this.setState({
+                task_infomation: {
+                  ...this.state.task_infomation,
+                  date_deadline: task_deadline_date_ref.current.value(),
+                },
+              });
+            }
+          }}
+          modalContent={
+            <TaskEditDatetime
+              label={'Deadline Date'}
+              currentValue={
+                this.state.task_infomation.date_deadline &&
+                moment(this.state.task_infomation.date_deadline).toDate()
+              }
+              ref={task_deadline_date_ref}
+            />
+          }
+          label={'Deadline Date'}
         />
       ),
     });
@@ -1071,7 +1090,9 @@ class TaskDetail extends Component {
                   }>
                   Deadline
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskDeadline}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.date_deadline
                       ? moment
@@ -1404,6 +1425,7 @@ const styles = StyleSheet.create({
   task_info_item_label: {
     fontSize: 15,
     color: '#000',
+    fontWeight: 'bold',
   },
   task_info_item_label_disabled: {
     fontSize: 15,
