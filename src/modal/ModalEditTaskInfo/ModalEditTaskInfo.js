@@ -44,7 +44,7 @@ class ModalEditTaskInfo extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    height: 240,
+    height: 320,
     padding: 10,
     backgroundColor: '#fff',
     borderTopLeftRadius: 10,
