@@ -337,7 +337,90 @@ class TaskDetail extends Component {
     }
   };
 
+  onEditTaskDone = () => {
+    let task_done_ref = React.createRef();
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            let num = parseInt(task_done_ref.current.value());
+            if (num && num >= 0) {
+              let changeTaskDone = await projectManageBusiness.changeTaskDone(
+                userInfo.uid,
+                userInfo.lang,
+                userInfo.tz,
+                this.state.task_id,
+                num,
+              );
+              if (changeTaskDone.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    percent_done: num,
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditText
+              label="Percent Done"
+              value={this.state.task_infomation.percent_done.toString()}
+              ref={task_done_ref}
+            />
+          }
+          label={'Percent Done'}
+        />
+      ),
+    });
+  };
+
   onEditStartDate = () => {};
+
+  onEditTaskEffort = () => {
+    let task_effort_ref = React.createRef();
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            let num = parseInt(task_effort_ref.current.value());
+            if (num && num >= 0) {
+              let changeTaskEffort =
+                await projectManageBusiness.changeTaskEffort(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  num,
+                );
+              if (changeTaskEffort.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    effort: num,
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditText
+              label="Effort (Hours)"
+              value={this.state.task_infomation.effort.toString()}
+              ref={task_effort_ref}
+            />
+          }
+          label={'Effort (Hours)'}
+        />
+      ),
+    });
+  };
 
   onEditTaskSupporter = () => {
     let task_supporter_ref = React.createRef();
@@ -447,7 +530,10 @@ class TaskDetail extends Component {
               label={'Deadline Date'}
               currentValue={
                 this.state.task_infomation.date_deadline &&
-                moment(this.state.task_infomation.date_deadline).toDate()
+                moment
+                  .utc(this.state.task_infomation.date_deadline)
+                  .tz(userInfo.tz)
+                  .toDate()
               }
               ref={task_deadline_date_ref}
             />
@@ -824,6 +910,53 @@ class TaskDetail extends Component {
     });
   };
 
+  onEditTaskFinishDate = () => {
+    let task_finish_date_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            let changeTaskFinishDate =
+              await projectManageBusiness.changeTaskFinishDate(
+                userInfo.uid,
+                userInfo.lang,
+                userInfo.tz,
+                this.state.task_id,
+                task_finish_date_ref.current.value(),
+              );
+
+            if (changeTaskFinishDate.status === 'success') {
+              this.setState({
+                task_infomation: {
+                  ...this.state.task_infomation,
+                  date_finished: task_finish_date_ref.current.value(),
+                },
+              });
+            }
+          }}
+          modalContent={
+            <TaskEditDatetime
+              label={'Done Date'}
+              currentValue={
+                this.state.task_infomation.date_finished &&
+                moment
+                  .utc(this.state.task_infomation.date_finished)
+                  .tz(userInfo.tz)
+                  .toDate()
+              }
+              ref={task_finish_date_ref}
+            />
+          }
+          label={'Done Date'}
+        />
+      ),
+    });
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -980,7 +1113,9 @@ class TaskDetail extends Component {
               </View>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>Done %</Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskDone}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.percent_done ?? ''}
                   </Text>
@@ -1030,7 +1165,9 @@ class TaskDetail extends Component {
               </View>
               <View style={styles.task_info_item}>
                 <Text style={styles.task_info_item_label}>Effort (Hours)</Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskEffort}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.effort ?? ''}
                   </Text>
@@ -1283,7 +1420,9 @@ class TaskDetail extends Component {
                   }>
                   Done Date
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskFinishDate}>
                   <Text style={styles.task_info_item_value_text}>
                     {this.state.task_infomation.date_finished
                       ? moment
