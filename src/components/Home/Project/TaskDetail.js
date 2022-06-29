@@ -338,6 +338,81 @@ class TaskDetail extends Component {
     }
   };
 
+  onEditTaskAssignedTeam = () => {
+    let task_assigned_team_ref = React.createRef();
+
+    Global._showModal({
+      content: (
+        <ModalEditTaskInfo
+          hideModal={() => {
+            Global._hideModal({callback: null});
+          }}
+          updateInfo={async () => {
+            if (
+              !this.state.task_infomation.team_id ||
+              task_assigned_team_ref.current.value()[0] !==
+                this.state.task_infomation.team_id[0]
+            ) {
+              let changeTaskAssignedTeam =
+                await projectManageBusiness.changeTaskAssignedTeam(
+                  userInfo.uid,
+                  userInfo.lang,
+                  userInfo.tz,
+                  this.state.task_id,
+                  task_assigned_team_ref.current.value()[0],
+                );
+              if (changeTaskAssignedTeam.status === 'success') {
+                this.setState({
+                  task_infomation: {
+                    ...this.state.task_infomation,
+                    team_id: task_assigned_team_ref.current.value(),
+                  },
+                });
+              }
+            }
+          }}
+          modalContent={
+            <TaskEditDropdownPicker
+              label={'Task Assigned Team'}
+              ref={task_assigned_team_ref}
+              currentValue={
+                this.state.task_infomation.team_id
+                  ? this.state.task_infomation.team_id?.[0]
+                  : false
+              }
+              getListItem={async () => {
+                let getListAssignedTeam =
+                  await projectManageBusiness.getListAssignedTeam(
+                    userInfo.uid,
+                    userInfo.lang,
+                    userInfo.tz,
+                  );
+                if (getListAssignedTeam.status === 'success') {
+                  let listItem = getListAssignedTeam.data.map(item => ({
+                    value: item[0],
+                    label: item[1],
+                  }));
+                  listItem.unshift({value: false, label: '(None)'});
+                  return listItem;
+                } else {
+                  return [
+                    {
+                      value: this.state.task_infomation.team_id
+                        ? this.state.task_infomation.team_id?.[0]
+                        : false,
+                      label: 'Error!!!',
+                    },
+                  ];
+                }
+              }}
+            />
+          }
+          label={'Task Assigned Team'}
+        />
+      ),
+    });
+  };
+
   onEditTaskDone = () => {
     let task_done_ref = React.createRef();
     Global._showModal({
@@ -1185,7 +1260,9 @@ class TaskDetail extends Component {
                   }>
                   Assigned Team
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditTaskAssignedTeam}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.team_id?.[1] ?? ''}
                   </Text>

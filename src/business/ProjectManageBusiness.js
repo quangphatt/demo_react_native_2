@@ -319,6 +319,49 @@ class ProjectManageBusiness extends Service {
     });
   };
 
+  getListAssignedTeam = (uid, lang, tz) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [],
+        kwargs: {
+          args: [],
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+          limit: 10,
+        },
+        method: 'name_search',
+        model: 'project.scrum.devteam',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
+  changeTaskAssignedTeam = (uid, lang, tz, task_id, team_id) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            team_id: team_id,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
   changeTaskDone = (uid, lang, tz, task_id, percent_done) => {
     return new Promise((resolve, reject) => {
       let params = {
