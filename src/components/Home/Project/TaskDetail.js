@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  TextInput,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -59,9 +58,34 @@ class TaskDetail extends Component {
       let taskInfo = result.data[0] ?? {};
 
       this.setState({
-        task_infomation: taskInfo,
+        task_infomation: {
+          ...taskInfo,
+          scheduling_mode_list: [
+            [false, '(None)'],
+            ['Normal', 'Normal'],
+            ['FixedDuration', 'Fixed Duration'],
+            ['FixedEffort', 'Fixed Effort'],
+            ['FixedUnits', 'Fixed Units'],
+          ],
+          constraint_type_list: [
+            [false, '(None)'],
+            ['muststarton', 'Must start on'],
+            ['mustfinishon', 'Must finish on'],
+            ['startnoearlierthan', 'Start no earlier than'],
+            ['startnolaterthan', 'Start no later than'],
+            ['finishnoearlierthan', 'Finish no earlier than'],
+            ['finishnolaterthan', 'Finish no later than'],
+          ],
+          option_list: [
+            ['task', 'Task'],
+            ['issue', 'Issue'],
+          ],
+        },
       });
     }
+
+    // Get Assigned Team Member
+    await this.getAssignedTeamMember();
 
     // Get Assigned Resource
     if (this.state.task_infomation.assigned_ids) {
@@ -105,32 +129,6 @@ class TaskDetail extends Component {
     this.setState({
       task_infomation: {
         ...this.state.task_infomation,
-        scheduling_mode_list: [
-          [false, '(None)'],
-          ['Normal', 'Normal'],
-          ['FixedDuration', 'Fixed Duration'],
-          ['FixedEffort', 'Fixed Effort'],
-          ['FixedUnits', 'Fixed Units'],
-        ],
-        constraint_type_list: [
-          [false, '(None)'],
-          ['muststarton', 'Must start on'],
-          ['mustfinishon', 'Must finish on'],
-          ['startnoearlierthan', 'Start no earlier than'],
-          ['startnolaterthan', 'Start no later than'],
-          ['finishnoearlierthan', 'Finish no earlier than'],
-          ['finishnolaterthan', 'Finish no later than'],
-        ],
-        option_list: [
-          ['task', 'Task'],
-          ['issue', 'Issue'],
-        ],
-      },
-    });
-
-    this.setState({
-      task_infomation: {
-        ...this.state.task_infomation,
         scheduling_mode_label:
           this.state.task_infomation.scheduling_mode_list.find(
             item => item[0] === this.state.task_infomation.scheduling_mode,
@@ -149,6 +147,47 @@ class TaskDetail extends Component {
 
   BackToTaskScreen = () => {
     this.props.navigation.navigate('Task', this.props.route.params.task_params);
+  };
+
+  getAssignedTeamMember = async () => {
+    if (this.state.task_infomation.team_id) {
+      let getTeamMember = await projectManageBusiness.getAssignedTeamMember(
+        userInfo.uid,
+        userInfo.lang,
+        userInfo.tz,
+        this.state.task_infomation.team_id[0],
+      );
+      if (getTeamMember.status === 'success') {
+        let getTeamMemberName = await projectManageBusiness.getUserName(
+          userInfo.uid,
+          userInfo.lang,
+          userInfo.tz,
+          getTeamMember.data[0].developer_ids,
+        );
+        if (getTeamMemberName.status === 'success') {
+          this.setState({
+            task_infomation: {
+              ...this.state.task_infomation,
+              team_member: getTeamMemberName.data,
+            },
+          });
+        } else {
+          this.setState({
+            task_infomation: {
+              ...this.state.task_infomation,
+              team_member: false,
+            },
+          });
+        }
+      }
+    } else {
+      this.setState({
+        task_infomation: {
+          ...this.state.task_infomation,
+          team_member: false,
+        },
+      });
+    }
   };
 
   onEditTaskName = () => {
@@ -368,6 +407,7 @@ class TaskDetail extends Component {
                     team_id: task_assigned_team_ref.current.value(),
                   },
                 });
+                await this.getAssignedTeamMember();
               }
             }
           }}
@@ -411,6 +451,76 @@ class TaskDetail extends Component {
         />
       ),
     });
+  };
+
+  onEditAssignedUser = () => {
+    if (this.state.task_infomation.team_id) {
+      let task_assigned_user_ref = React.createRef();
+
+      Global._showModal({
+        content: (
+          <ModalEditTaskInfo
+            hideModal={() => {
+              Global._hideModal({callback: null});
+            }}
+            updateInfo={async () => {
+              if (
+                this.state.task_infomation.team_member.find(
+                  item => item[0] === task_assigned_user_ref.current.value()[0],
+                ) &&
+                (!this.state.task_infomation.user_id ||
+                  task_assigned_user_ref.current.value()[0] !==
+                    this.state.task_infomation.user_id[0])
+              ) {
+                let changeTaskAssignedUser =
+                  await projectManageBusiness.changeTaskAssignedUser(
+                    userInfo.uid,
+                    userInfo.lang,
+                    userInfo.tz,
+                    this.state.task_id,
+                    task_assigned_user_ref.current.value()[0],
+                  );
+                if (changeTaskAssignedUser.status === 'success') {
+                  this.setState({
+                    task_infomation: {
+                      ...this.state.task_infomation,
+                      user_id: task_assigned_user_ref.current.value(),
+                    },
+                  });
+                }
+              }
+            }}
+            modalContent={
+              <TaskEditDropdownPicker
+                label={'Task Assigned User'}
+                ref={task_assigned_user_ref}
+                currentValue={
+                  this.state.task_infomation.user_id
+                    ? this.state.task_infomation.user_id?.[0]
+                    : this.state.task_infomation.team_member[0][0]
+                }
+                getListItem={() => {
+                  let listItem = this.state.task_infomation.team_member;
+                  if (
+                    !listItem.find(
+                      item => item[0] === this.state.task_infomation.user_id[0],
+                    )
+                  ) {
+                    listItem.unshift(this.state.task_infomation.user_id);
+                  }
+
+                  return listItem.map(item => ({
+                    value: item[0],
+                    label: item[1],
+                  }));
+                }}
+              />
+            }
+            label={'Task Assigned User'}
+          />
+        ),
+      });
+    }
   };
 
   onEditTaskDone = () => {
@@ -1277,7 +1387,9 @@ class TaskDetail extends Component {
                   }>
                   Assigned To
                 </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
+                <TouchableOpacity
+                  style={styles.task_info_item_value}
+                  onPress={this.onEditAssignedUser}>
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.user_id?.[1] ?? ''}
                   </Text>
@@ -1396,19 +1508,6 @@ class TaskDetail extends Component {
                   <Text style={styles.task_info_item_value_text_blue}>
                     {this.state.task_infomation.creator_id?.[1] ?? ''}
                   </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.task_info_item}>
-                <Text
-                  style={
-                    this.state.task_infomation.need_install
-                      ? styles.task_info_item_label
-                      : styles.task_info_item_label_disabled
-                  }>
-                  Need Install
-                </Text>
-                <TouchableOpacity style={styles.task_info_item_value}>
-                  <Text style={styles.task_info_item_value_text}></Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.task_info_item}>
