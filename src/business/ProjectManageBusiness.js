@@ -146,6 +146,29 @@ class ProjectManageBusiness extends Service {
     });
   };
 
+  changeTaskStage = (uid, lang, tz, task_id, stage_id) => {
+    return new Promise((resolve, reject) => {
+      let params = {
+        args: [
+          [task_id],
+          {
+            stage_id: stage_id,
+          },
+        ],
+        kwargs: {
+          context: {
+            lang: lang,
+            tz: tz,
+            uid: uid,
+          },
+        },
+        method: 'write',
+        model: 'project.task',
+      };
+      this.post(params).then(resolve).catch(reject);
+    });
+  };
+
   getTaskInfomation = (uid, lang, tz, task_id) => {
     return new Promise((resolve, reject) => {
       let params = {
