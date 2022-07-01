@@ -190,6 +190,24 @@ class TaskDetail extends Component {
     }
   };
 
+  onChangeTaskStage = async stage_id => {
+    let changeTaskStage = await projectManageBusiness.changeTaskStage(
+      userInfo.uid,
+      userInfo.lang,
+      userInfo.tz,
+      this.state.task_id,
+      stage_id[0],
+    );
+    if (changeTaskStage.status === 'success') {
+      this.setState({
+        task_infomation: {
+          ...this.state.task_infomation,
+          stage_id: stage_id,
+        },
+      });
+    }
+  };
+
   onEditTaskName = () => {
     let task_name_ref = React.createRef();
     Global._showModal({
@@ -1299,7 +1317,7 @@ class TaskDetail extends Component {
               ) : (
                 <View style={styles.status_bar_stage_wrapper}>
                   <TouchableOpacity
-                    onPress={this.onChangeStage}
+                    onPress={() => this.onChangeTaskStage([item.stage_id,item.stage_name])}
                     style={styles.status_bar_stage}>
                     <Text style={styles.status_bar_stage_text}>
                       {item.stage_name}
